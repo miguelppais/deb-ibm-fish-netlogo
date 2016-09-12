@@ -436,7 +436,13 @@ to update
    if aging = "on" [if ticks mod timestep = age-day [if random-float 1 < h_rate [die]] ] ;ageing related mortality
    if aging = "off" [if ticks mod timestep = age-day [if random-float 1 < background-mortality [die]] ]
  ]
-  if food-dynamics = "logistic"[ ask patches [ set X X + d_X / timestep]]
+  if food-dynamics = "logistic"[
+    ask patches [
+      if X + d_X > 0 [                       ; prevent food density from going negative
+        set X X + d_X / timestep
+        ]
+      ]
+  ]
 end
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -501,6 +507,24 @@ to choose-species
     set F_m  1
   ]
 
+    if species = "Daphnia pulex" [
+    set shape_factor 0.37
+    set v_rate_int 0.03627
+    set kap_int 0.763
+    set kap_R_int 0.95
+    set p_m 1400
+    set E_G 4400
+    set K_J_rate_int 0.002
+    set E_H^b 0.02251
+    set E_H^p 0.6024
+    set zoom 0.15
+    ;ageing
+    set h_a 0.0001116
+    set sG 0.0001
+    ;feeding
+    set F_m  1
+  ]
+
   if species = "Solea solea" [
     set shape_factor 0.149271
     set v_rate_int 0.01124
@@ -536,6 +560,43 @@ to choose-species
     ;feeding
     set F_m 1
   ]
+
+  if species = "Danio rerio" [
+    set shape_factor 0.1325
+    set v_rate_int 0.0278
+    set kap_int 0.4366
+    set kap_R_int 0.95
+    set p_m 500.9
+    set E_G 4652
+    set K_J_rate_int 0.01662
+    set E_H^b 0.5402
+    set E_H^p 2062
+    set zoom 0.2147
+    ;ageing
+    set h_a 1.96E-9
+    set sG 0.0405
+    ;feeding
+    set F_m 1
+  ]
+
+  if species = "Caretta caretta" [
+    set shape_factor 0.378719
+    set v_rate_int 0.0605892
+    set kap_int 0.641872
+    set kap_R_int 0.95
+    set p_m 12.2321
+    set E_G 7851.45
+    set K_J_rate_int 0.002
+    set E_H^b 33684.9
+    set E_H^p 1.01194E8
+    set zoom 36.3299
+    ;ageing
+    set h_a 8.20773E-11
+    set sG 0.0001
+    ;feeding
+    set F_m 1
+  ]
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -642,7 +703,7 @@ NIL
 0.0
 10.0
 0.0
-650.0
+20.0
 true
 true
 "" ""
@@ -676,10 +737,10 @@ SLIDER
 68
 timestep
 timestep
-10
+1
 150
-150
-5
+11
+1
 1
 NIL
 HORIZONTAL
@@ -700,8 +761,8 @@ MONITOR
 34
 390
 79
-population density
-count turtles\n
+NIL
+count turtles
 0
 1
 11
@@ -714,7 +775,7 @@ CHOOSER
 food-dynamics
 food-dynamics
 "logistic" "constant"
-0
+1
 
 INPUTBOX
 39
@@ -722,7 +783,7 @@ INPUTBOX
 120
 527
 v_rate_int
-0.1584
+0.01124
 1
 0
 Number
@@ -733,7 +794,7 @@ INPUTBOX
 120
 587
 kap_int
-0.75
+0.7353
 1
 0
 Number
@@ -755,7 +816,7 @@ INPUTBOX
 122
 263
 k_M_rate_int
-0.5050399721932569
+0.0043083969699522825
 1
 0
 Number
@@ -766,7 +827,7 @@ INPUTBOX
 120
 706
 k_J_rate_int
-8.24E-4
+0.002
 1
 0
 Number
@@ -777,7 +838,7 @@ INPUTBOX
 121
 323
 g_int
-2.367083327922711
+0.9772764208963077
 1
 0
 Number
@@ -788,7 +849,7 @@ INPUTBOX
 121
 383
 U_H^b_int
-3.8364347024373776E-5
+7.116351808564835E-4
 1
 0
 Number
@@ -799,7 +860,7 @@ INPUTBOX
 121
 443
 U_H^p_int
-0.0012508927527951279
+1854.586817105697
 1
 0
 Number
@@ -821,7 +882,7 @@ INPUTBOX
 458
 635
 r_X
-1
+3
 1
 0
 Number
@@ -832,7 +893,7 @@ INPUTBOX
 458
 695
 K_X
-1
+100
 1
 0
 Number
@@ -911,7 +972,7 @@ INPUTBOX
 417
 357
 h_a
-4.105E-4
+9.3181E-9
 1
 0
 Number
@@ -922,7 +983,7 @@ INPUTBOX
 417
 417
 sG
--0.5
+1.0E-4
 1
 0
 Number
@@ -969,7 +1030,7 @@ INPUTBOX
 248
 309
 cv
-0.1
+0.01
 1
 0
 Number
@@ -1010,7 +1071,7 @@ INPUTBOX
 255
 525
 p_m
-1453
+22.5
 1
 0
 Number
@@ -1021,7 +1082,7 @@ INPUTBOX
 255
 586
 E_G
-2877
+5222.36
 1
 0
 Number
@@ -1032,7 +1093,7 @@ INPUTBOX
 253
 766
 zoom
-0.1325
+2.66952
 1
 0
 Number
@@ -1043,7 +1104,7 @@ INPUTBOX
 254
 646
 E_H^b
-0.009848
+0.0581311
 1
 0
 Number
@@ -1054,7 +1115,7 @@ INPUTBOX
 254
 706
 E_H^p
-0.3211
+151495
 1
 0
 Number
@@ -1085,7 +1146,7 @@ INPUTBOX
 418
 478
 background-mortality
-0.05
+0.01
 1
 0
 Number
@@ -1096,7 +1157,7 @@ INPUTBOX
 140
 767
 shape_factor
-0.2637
+0.149271
 1
 0
 Number
@@ -1108,8 +1169,8 @@ CHOOSER
 126
 species
 species
-"Daphnia magna" "Solea solea" "Dicentrarchus labrax"
-0
+"Daphnia magna" "Daphnia pulex" "Solea solea" "Dicentrarchus labrax" "Danio rerio" "Caretta caretta"
+2
 
 SLIDER
 111
@@ -1120,7 +1181,7 @@ initial-nr-embryos
 initial-nr-embryos
 5
 100
-100
+10
 5
 1
 NIL

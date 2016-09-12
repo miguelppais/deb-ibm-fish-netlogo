@@ -544,6 +544,24 @@ to choose-species
     set F_m  1
   ]
 
+  if species = "Daphnia pulex" [
+    set shape_factor 0.37
+    set v_rate_int 0.03627
+    set kap_int 0.763
+    set kap_R_int 0.95
+    set p_m 1400
+    set E_G 4400
+    set K_J_rate_int 0.002
+    set E_H^b 0.02251
+    set E_H^p 0.6024
+    set zoom 0.15
+    ;ageing
+    set h_a 0.0001116
+    set sG 0.0001
+    ;feeding
+    set F_m  1
+  ]
+
   if species = "Solea solea" [
     set shape_factor 0.149271
     set v_rate_int 0.01124
@@ -579,6 +597,29 @@ to choose-species
     ;feeding
     set F_m 6.5
   ]
+
+
+  if species = "Danio rerio" [
+    set shape_factor 0.1325
+    set v_rate_int 0.0278
+    set kap_int 0.4366
+    set kap_R_int 0.95
+    set p_m 500.9
+    set E_G 4652
+    set K_J_rate_int 0.01662
+    set E_H^b 0.5402
+    set E_H^p 2062
+    set zoom 0.2147
+    ;ageing
+    set h_a 1.96E-9
+    set sG 0.0405
+    ;feeding
+    set F_m 6.5
+  ]
+
+
+
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -720,7 +761,7 @@ SLIDER
 timestep
 timestep
 10
-200
+150
 150
 10
 1
@@ -1012,7 +1053,7 @@ INPUTBOX
 252
 335
 cv
-0.1
+0.05
 1
 0
 Number
@@ -1161,7 +1202,7 @@ CHOOSER
 130
 species
 species
-"Daphnia magna" "Dicentrarchus labrax" "Solea solea"
+"Daphnia magna" "Daphnia pulex" "Dicentrarchus labrax" "Solea solea" "Danio rerio"
 0
 
 SLIDER
