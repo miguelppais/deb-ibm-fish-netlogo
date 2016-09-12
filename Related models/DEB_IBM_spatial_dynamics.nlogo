@@ -64,7 +64,6 @@ turtles-own[
   offspring-count ; with this parameter, the reproduction rate per turtle is shown on the interface
   sim         ; this keeps track of how many times the calc-egg-size loop is run
 
-
   ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ; - - - - - - - - - - - - - - - STANDARD DEB PARAMETERS (with dimension and name) - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -95,7 +94,7 @@ turtles-own[
   age-day         ; each turtle has a random whole number between 0 and timestep if the mod of ticks = the age day of a turtle is will check to see if it dies
                   ; based on the ageing submodel. This is because mortality probabilities are per day, and timesteps are smaller
 
-  f        ; - , scaled functional response
+ f        ; - , scaled functional response
 ]
 
 ; ==========================================================================================================================================
@@ -153,13 +152,13 @@ to go
     if U_H >= U_H^p                 ; mature individual check if they have enough energy in their reproduction buffer to repdroduce
       [
         calc-lay-eggs
-        if lay-egg? = 1
-          [
-           calc-embryo-reserve-investment         ; if so, they calculate how much energy to invest in an embryo
-           lay-eggs                    ; and they produce one offspring
-           ]
-        ]
       ]
+    if lay-egg? = 1
+      [
+        calc-embryo-reserve-investment         ; if so, they calculate how much energy to invest in an embryo
+        lay-eggs                    ; and they produce one offspring
+      ]
+  ]
  movement-submodel
 
   ask patches [ set pcolor scale-color green X 2 0]
@@ -367,11 +366,11 @@ end
 ;--------- LAY EGGS ------------------------------------------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------------------------------------------------------------
 ;the following procedure is run for mature individuals which have enough energy to reproduce
-; they create offspring and give them the following state variables and DEB parameters
+; they create 1 offspring and give it the following state variables and DEB parameters
 ;the initial reserves is set to the value determined by the bisection method in "calc_egg_size"
 
 to lay-eggs
-  hatch floor (U_R / estimation)
+  hatch 1
     [
       ;the following code give offspring varibility in their DEB paramters on a normal distribution with a mean on the input paramater and a coefficent of variation equal to the cv
       ; set cv to 0 for no variation
@@ -403,7 +402,7 @@ to lay-eggs
       set age-day random timestep
     ]
   set lay-egg? 0
-  set U_R U_R - floor (U_R / estimation) * estimation
+  set U_R U_R - estimation / kap_R
 end
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -455,7 +454,6 @@ to update
     ask patches [ if x < 0 [ set x .000001]]
 
 end
-
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; -------------- Movement submodel ---------------------------------------------------------------------------------------------------------
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -486,7 +484,6 @@ if random-number >= p-a + p-b + p-r + p-l + p-ar + p-br + p-al + p-bl [move-to p
   ]
   ]
 end
-
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ----------------- PLOT -------------------------------------------------------------------------------------------------------------------
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -513,7 +510,7 @@ to do-plots
 
 
   set-current-plot "size distribution"
-  histogram [l / .054 ] of turtles with [U_H > U_H^b]
+  histogram [l / shape_factor ] of turtles with [U_H > U_H^b]
 
 
     set-current-plot "juv e distribution"
@@ -522,6 +519,7 @@ to do-plots
     set-current-plot "adult e distribution"
   histogram [e_scaled] of turtles with [U_H >= U_H^p]
 end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 1319
@@ -559,7 +557,7 @@ f_scaled
 f_scaled
 0
 1
-1
+0
 .01
 1
 NIL
@@ -661,9 +659,9 @@ SLIDER
 68
 timestep
 timestep
-1
-24
-12
+0
+1000
+100
 1
 1
 NIL
@@ -707,7 +705,7 @@ INPUTBOX
 120
 527
 v_rate_int
-0.01124
+0.16
 1
 0
 Number
@@ -718,7 +716,7 @@ INPUTBOX
 120
 587
 kap_int
-0.7353
+0.8
 1
 0
 Number
@@ -740,7 +738,7 @@ INPUTBOX
 122
 263
 k_M_rate_int
-0.0043083969699522825
+4
 1
 0
 Number
@@ -751,7 +749,7 @@ INPUTBOX
 120
 706
 k_J_rate_int
-0.002
+4
 1
 0
 Number
@@ -762,7 +760,7 @@ INPUTBOX
 121
 323
 g_int
-0.9772764208963077
+0.15003750937734434
 1
 0
 Number
@@ -773,7 +771,7 @@ INPUTBOX
 121
 383
 U_H^b_int
-7.116351808564835E-4
+9.993569821026685E-6
 1
 0
 Number
@@ -784,7 +782,7 @@ INPUTBOX
 121
 443
 U_H^p_int
-1854.586817105697
+4.000107169649555E-4
 1
 0
 Number
@@ -817,7 +815,7 @@ INPUTBOX
 458
 695
 X_k
-30
+2
 1
 0
 Number
@@ -896,7 +894,7 @@ INPUTBOX
 417
 357
 h_a
-9.3181E-9
+0.00125
 1
 0
 Number
@@ -907,7 +905,7 @@ INPUTBOX
 417
 417
 sG
-1.0E-4
+-0.5
 1
 0
 Number
@@ -995,7 +993,7 @@ INPUTBOX
 255
 525
 p_m
-22.5
+11200
 1
 0
 Number
@@ -1006,7 +1004,7 @@ INPUTBOX
 255
 586
 E_G
-5222.36
+2800
 1
 0
 Number
@@ -1017,7 +1015,7 @@ INPUTBOX
 253
 766
 zoom
-2.66952
+0.2666
 1
 0
 Number
@@ -1028,7 +1026,7 @@ INPUTBOX
 254
 646
 E_H_b
-0.0581311
+0.0373
 1
 0
 Number
@@ -1039,7 +1037,7 @@ INPUTBOX
 254
 706
 E_H_p
-151495
+1.493
 1
 0
 Number
@@ -1081,6 +1079,17 @@ INPUTBOX
 478
 background-mortality
 0.05
+1
+0
+Number
+
+INPUTBOX
+41
+710
+121
+770
+shape_factor
+0
 1
 0
 Number
