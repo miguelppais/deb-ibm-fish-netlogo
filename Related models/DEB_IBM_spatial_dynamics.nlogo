@@ -13,7 +13,7 @@
 globals[
   U_E^0    ; t L^2, initial reserves of the embryos at the start of the simulation
   L_0      ; cm, initial structural volume
-]
+]  
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; parameters for the environment: here only prey density
 
@@ -23,76 +23,76 @@ patches-own[
 ]
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 
-; definition of parameters for the individuals:
+; definition of parameters for the individuals: 
 ; the notation follows the DEBtool-notation as far as possible
 ; deviation: rates are indicated with "_rate" rather than a dot
 ; each individual(turtle) in the model has the following parameters
 turtles-own[
-  ; - - - - - - - - - - - - - - - STATE VARIABLES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  L           ; cm, structural length
+  ; - - - - - - - - - - - - - - - STATE VARIABLES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  L           ; cm, structural length                                                 
   dL          ; change of structural length in time
-  U_H         ; t L^2, scaled maturity
-  dU_H        ; change of scaled maturity in time
-  U_E         ; t L^2, scaled reserves
-  dU_E        ; change of scaled reserves in time
-  e_scaled    ; - , scaled reserves per unit of structure
-  U_R         ; t L^2, scaled energy in reproduction buffer (not standard DEB)
+  U_H         ; t L^2, scaled maturity                                    
+  dU_H        ; change of scaled maturity in time                                                                                                       
+  U_E         ; t L^2, scaled reserves                                      
+  dU_E        ; change of scaled reserves in time      
+  e_scaled    ; - , scaled reserves per unit of structure                                              
+  U_R         ; t L^2, scaled energy in reproduction buffer (not standard DEB)                                 
   dU_R        ; change of energy in reproduction buffer (reproduction rate)
-
-  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ; - - - - - - - - - - - - - - - FLUXES (used by several submodels) - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  S_A         ; assimilation flux
-  S_C         ; mobilisation flux
-
-  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
+  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                                  
+  ; - - - - - - - - - - - - - - - FLUXES (used by several submodels) - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                     
+ 
+  S_A         ; assimilation flux                                   
+  S_C         ; mobilisation flux    
+  
+  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   ; - - - - - - - - - - - - - - - EMBRYO (we use different state variable to not affect the state varibale of the mother) - - - - - - - - --
-  e_scaled_embryo
-  e_ref
-  U_E_embryo
-  S_C_embryo
-  U_H_embryo
-  L_embryo
-  dU_E_embryo
-  dU_H_embryo
-  dL_embryo
+  e_scaled_embryo    
+  e_ref                                       
+  U_E_embryo                                                 
+  S_C_embryo                                                 
+  U_H_embryo                                                 
+  L_embryo                                                   
+  dU_E_embryo                                                 
+  dU_H_embryo                                                 
+  dL_embryo     
   ; parameters used to calculate the costs for an egg / initial reserves
-  lower-bound ; lower boundary for shooting method
-  upper-bound ; upper boundary for shooting method
-  estimation  ; estimated value for the costs for an egg / initial reserve
+  lower-bound ; lower boundary for shooting method                                                
+  upper-bound ; upper boundary for shooting method                                                
+  estimation  ; estimated value for the costs for an egg / initial reserve                                                 
   lay-egg?    ; parameter needed to hand over if an egg can be laid
   offspring-count ; with this parameter, the reproduction rate per turtle is shown on the interface
   sim         ; this keeps track of how many times the calc-egg-size loop is run
-
-  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ; - - - - - - - - - - - - - - - STANDARD DEB PARAMETERS (with dimension and name) - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  g           ; - , energy investment ratio
+ 
+  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  ; - - - - - - - - - - - - - - - STANDARD DEB PARAMETERS (with dimension and name) - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ 
+  g           ; - , energy investment ratio 
   v_rate      ; cm /t , energy conductance (velocity)
   kap         ; - , allocation fraction to soma
   kap_R       ; - , reproduction efficiency
   k_M_rate    ; 1/t, somatic maintenance rate coefficient
-  k_J_rate    ; 1/t, maturity maintenance rate coefficient
-  U_H^b       ; t L^2, scaled maturity at birth
-  U_H^p       ; t L^2, scaled maturity at puberty
-  ; parameter that is used to randomize the input parameters
-  scatter-multiplier
-
-  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ; - - - - - - - - - - - - - - - PREY DYNAMICS (only relevant if prey-dynamics are set to logistic) - - - - - - - - - - - - - - - - - - -
-
-  J_XAm_rate  ; # / (cm^2 t), surface-area-specific maximum ingestion rate
-  K           ; # / cm^2, (half) saturation coefficient
-
-  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ; - - - - - - - - - - - - - - - AGEING -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+  k_J_rate    ; 1/t, maturity maintenance rate coefficient                                              
+  U_H^b       ; t L^2, scaled maturity at birth                                               
+  U_H^p       ; t L^2, scaled maturity at puberty  
+  ; parameter that is used to randomize the input parameters   
+  scatter-multiplier    
+ 
+  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  ; - - - - - - - - - - - - - - - PREY DYNAMICS (only relevant if prey-dynamics are set to logistic) - - - - - - - - - - - - - - - - - - -                                                         
+ 
+  J_XAm_rate  ; # / (cm^2 t), surface-area-specific maximum ingestion rate                                                    
+  K           ; # / cm^2, (half) saturation coefficient                                                         
+ 
+  ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  ; - - - - - - - - - - - - - - - AGEING -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                             
+ 
   q_acceleration  ; - , ageing acceleration
-  dq_acceleration ; change of ageing acceleration in time
+  dq_acceleration ; change of ageing acceleration in time                                                    
   h_rate          ; - , hazard rate
   dh_rate         ; change of hazard rate in time
   age-day         ; each turtle has a random whole number between 0 and timestep if the mod of ticks = the age day of a turtle is will check to see if it dies
-                  ; based on the ageing submodel. This is because mortality probabilities are per day, and timesteps are smaller
+                  ; based on the ageing submodel. This is because mortality probabilities are per day, and timesteps are smaller                                            
 
  f        ; - , scaled functional response
 ]
@@ -102,21 +102,21 @@ turtles-own[
 ; ==========================================================================================================================================
 
 to setup
-ca
-reset-ticks
- if add_my_pet? = "on"
+ ca
+     
+ if add_my_pet? = "on" 
  [convert-parameters]
-
+ 
  set L_0 .00001
-
- crt 1000                   ; 10 turtles are created in the beginning
+  
+ crt 1000                   ; 10 turtles are created in the beginning    
  ask  turtles  [
   individual-variability  ; first their individual variability in the parameter is set
   calc-embryo-reserve-investment     ; then the initial energy is calculated for each
  setxy random-xcor random-ycor
 
  ]
-
+  
  ask patches [ set X J_XAm_rate_int /   F_m ]; set initial value of prey to their carrying capacity
 end
 
@@ -125,18 +125,18 @@ end
 ; ==========================================================================================================================================
 ; the go statement below is the order in which all procedures are run each timestep
 
-to go
-
-  ask turtles
+to go 
+  
+  ask turtles 
   [
     calc-dU_E                       ; first all individuals calculate the change in their state variables based on the current conditions
-    calc-dU_H
-    calc-dU_R
+    calc-dU_H  
+    calc-dU_R 
     calc-dL
-  ]
+  ] 
   if aging = "on"                   ; if the ageing submodel is turned on, the change in damage inducing compound and damage are calculated
-  [
-    ask turtles
+  [ 
+    ask turtles 
     [
       calc-dq_acceleration
       calc-dh_rate
@@ -144,26 +144,26 @@ to go
   ]
   if food-dynamics = "logistic"     ; if prey dynamics are set to "logistic" the change in prey density is calculated
   [ask patches [calc-d_X]]
-
+  
   update                           ; the the state variables of the individuals and prey are updated based on the delta value
-
-  ask turtles
-  [
+  
+  ask turtles 
+  [ 
     if U_H >= U_H^p                 ; mature individual check if they have enough energy in their reproduction buffer to repdroduce
       [
         calc-lay-eggs
       ]
-    if lay-egg? = 1
+    if lay-egg? = 1  
       [
         calc-embryo-reserve-investment         ; if so, they calculate how much energy to invest in an embryo
-        lay-eggs                    ; and they produce one offspring
-      ]
-  ]
+        lay-eggs                    ; and they produce one offspring    
+      ]  
+  ]  
  movement-submodel
-
+ 
   ask patches [ set pcolor scale-color green X 2 0]
   tick
-  do-plots                          ; then the plots are updated
+  do-plots                          ; then the plots are updated 
   if count turtles = 0 [stop]
 end
 
@@ -187,19 +187,19 @@ end
 
 to individual-variability
   ; individuals vary in their DEB paramters on a normal distribution with a mean on the input paramater and a coefficent of variation equal to the cv
-  ; set cv to 0 for no variation
+  ; set cv to 0 for no variation      
   set scatter-multiplier e ^ (random-normal 0 cv)
   set J_XAm_rate   J_XAm_rate_int * scatter-multiplier
   set g g_int / scatter-multiplier
-  set U_H^b U_H^b_int / scatter-multiplier ;
-  set U_H^p U_H^p_int / scatter-multiplier ;
-
-  set v_rate v_rate_int
+  set U_H^b U_H^b_int / scatter-multiplier ; 
+  set U_H^p U_H^p_int / scatter-multiplier ; 
+ 
+  set v_rate v_rate_int   
   set kap kap_int
   set kap_R kap_R_int
-  set k_M_rate k_M_rate_int
+  set k_M_rate k_M_rate_int                                           
   set k_J_rate k_J_rate_int
-  set K  J_XAm_rate /   F_m
+  set K  J_XAm_rate /   F_m 
   set age-day random timestep
 end
 
@@ -212,52 +212,52 @@ end
 ; if food is set to  "logistic" f depends on prey density and the half-saturation coefficient (K)
 ; for embryos f = 0 because they do not feed exogenously
 
-to calc-dU_E
-
+to calc-dU_E  
+  
   if food-dynamics = "constant"
   [ ifelse U_H <= U_H^b
     [set f 0]
-    [set f f_scaled]
+    [set f f_scaled] 
   ]
   if food-dynamics = "logistic"
-  [ ifelse U_H <= U_H^b
+  [ ifelse U_H <= U_H^b 
     [set f 0]
     [set f X / (K + X)]
   ]
   set e_scaled v_rate * (U_E / L ^ 3)
   set S_C L ^ 2 * (g * e_scaled / (g + e_scaled)) * (1 + (L / (g * (V_rate / ( g * K_M_rate)))))
-
+  
   set S_A  f * L ^ 2 ;
-
-  set dU_E (S_A - S_C )
-end
+  
+  set dU_E (S_A - S_C )  
+end 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ----------------- MATURITY AND REPRODUCTION  ---------------------------------------------------------------------------------------------
-; ------------------------------------------------------------------------------------------------------------------------------------------
+; ------------------------------------------------------------------------------------------------------------------------------------------ 
 ; change in maturity is calculated (for immature individuals only)
 
-to calc-dU_H
-
-  ifelse U_H < U_H^p ; they only invest into maturity until they reach puberty
+to calc-dU_H 
+  
+  ifelse U_H < U_H^p ; they only invest into maturity until they reach puberty 
     [set dU_H ((1 - kap) * S_C - k_J_rate * U_H) ]
     [set dU_H 0]
 end
 
 ; the following procedure calculates change in reprobuffer if mature
-to calc-dU_R
+to calc-dU_R  
   if U_H >= U_H^p
     [set dU_R  ((1 - kap) * S_C - k_J_rate * U_H^p) ]
-end
+end  
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ----------------- DYNAMICS OF STRUCTURAL LENGHT-------------------------------------------------------------------------------------------
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; the following procedure calculates change in structural length, if growth in negative the individual does not have enough energy to pay somatic maintenance and the starvation submodel is run
 ; where growth is set to 0 and individuals divirt enough energy from development (for juveniles) or reprodution (for adults) to pay maintenance costs
-to calc-dL
-
-  set dL   ((1 / 3) * (((V_rate /( g * L ^ 2 )) * S_C) - k_M_rate * L))
-
+to calc-dL 
+  
+  set dL   ((1 / 3) * (((V_rate /( g * L ^ 2 )) * S_C) - k_M_rate * L)) 
+  
   if e_scaled < L / (V_rate / ( g * K_M_rate))  ; if growth is negative use starvation strategy 3 from the DEB book
     [
       set dl 0
@@ -266,16 +266,16 @@ to calc-dL
        [ set dU_R  (1 - kap) * e_scaled * L ^ 2 - K_J_rate * U_H^p - kap * L ^ 2 * ( L / (V_rate / ( g * K_M_rate)) - e_scaled)]
       set dU_E  S_A - e_scaled * L ^ 2
    ifelse U_H < U_H^p
-
+ 
  [  if dU_H < 0 [die]]
-
+    
       [if U_R < 0 [die]]
     ]
-
+ 
 end
 
 ;------------------------------------------------------------------------------------------------------------------------------------------
-;---------- CHECK IF POSSIBLE TO LAY EGGS -------------------------------------------------------------------------------------------------
+;---------- CHECK IF POSSIBLE TO LAY EGGS ------------------------------------------------------------------------------------------------- 
 ;------------------------------------------------------------------------------------------------------------------------------------------
 ; in the following, individuals determine if they have enough energy in their repro buffer to reproduce by creating an embryo with initial reserves set to the energy
 ; currently in their repro buffer * kap_R (conversion efficiancy of  reprobuffer to embryo) if the individual has enough energy to produce an offspring which will reach
@@ -284,23 +284,23 @@ to calc-lay-eggs
   set L_embryo  L_0
   set U_E_embryo U_R * kap_R
   set U_H_embryo  0
-
-  loop [
+  
+  loop [   
     set e_scaled_embryo v_rate * (U_E_embryo / L_embryo  ^ 3)
     set S_C_embryo L_embryo  ^ 2 * (g * e_scaled_embryo / (g + e_scaled_embryo)) * (1 + (L_embryo  / (g * (V_rate / ( g * K_M_rate)))))
-
-    set dU_E_embryo  ( -1 * S_C_embryo )
-    set dU_H_embryo  ((1 - kap) * S_C_embryo - k_J_rate * U_H_embryo )
-    set dL_embryo  ((1 / 3) * (((V_rate /( g * L_embryo  ^ 2 )) * S_C_embryo) - k_M_rate * L_embryo ))
-
+    
+    set dU_E_embryo  ( -1 * S_C_embryo )  
+    set dU_H_embryo  ((1 - kap) * S_C_embryo - k_J_rate * U_H_embryo ) 
+    set dL_embryo  ((1 / 3) * (((V_rate /( g * L_embryo  ^ 2 )) * S_C_embryo) - k_M_rate * L_embryo )) 
+    
     set  U_E_embryo  U_E_embryo +  dU_E_embryo  / timestep
     set  U_H_embryo  U_H_embryo  +  dU_H_embryo   / timestep
     set  L_embryo    L_embryo  +  dL_embryo   / timestep
-
+    
     if U_H_embryo  > U_H^b * 1 [ set lay-egg? 1 stop]
     if e_scaled_embryo < e_scaled [stop]
-    ]
-end
+    ] 
+end 
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ------------------------ INITIAL ENERGY --------------------------------------------------------------------------------------------------
@@ -313,48 +313,48 @@ to calc-embryo-reserve-investment
   [set upper-bound 100]
   [set upper-bound U_R * kap_R]
   set sim 0
-
+ 
   loop[
     set sim sim + 1
-
+    
     set estimation .5 * (lower-bound + upper-bound)
     set L_embryo  L_0
     set U_E_embryo estimation
     set U_H_embryo  0
     set e_scaled_embryo v_rate * (U_E_embryo / L_embryo  ^ 3)
-
+    
     ifelse ticks = 0[set e_ref 1][set e_ref e_scaled]  ; e_ref now determines which e_scaled_embryo to calculate: 1 for ticks = 0 (in the setup procedure), e_scaled otherwise
-
-    while [U_H_embryo  < U_H^b and e_scaled_embryo > e_ref ]
+    
+    while [U_H_embryo  < U_H^b and e_scaled_embryo > e_ref ] 
     ;     while [U_H_embryo  < U_H^b and e_scaled_embryo > 1 ] ; egg-size:  while [U_H_embryo  < U_H^b and e_scaled_embryo > e_scaled  ] ; I KEPT THIS LINE FOR NOW TO HAVE IT EASIER TO COMPARE
       [ set e_scaled_embryo v_rate * (U_E_embryo / L_embryo  ^ 3)
         set S_C_embryo L_embryo  ^ 2 * (g * e_scaled_embryo / (g + e_scaled_embryo)) * (1 + (L_embryo  / (g * (v_rate / ( g * k_M_rate)))))
-
-        set dU_E_embryo  ( -1 * S_C_embryo )
-        set dU_H_embryo  ((1 - kap) * S_C_embryo - k_J_rate * U_H_embryo  )
-        set dL_embryo   ((1 / 3) * (((V_rate /( g * L_embryo  ^ 2 )) * S_C_embryo) - k_M_rate * L_embryo ))
-
+        
+        set dU_E_embryo  ( -1 * S_C_embryo )  
+        set dU_H_embryo  ((1 - kap) * S_C_embryo - k_J_rate * U_H_embryo  ) 
+        set dL_embryo   ((1 / 3) * (((V_rate /( g * L_embryo  ^ 2 )) * S_C_embryo) - k_M_rate * L_embryo )) 
+        
         set  U_E_embryo  U_E_embryo +  dU_E_embryo    / (timestep )
         set  U_H_embryo   U_H_embryo  +  dU_H_embryo   / (timestep )
         set  L_embryo   L_embryo  +  dL_embryo    / (timestep )
-      ]
-
-    if e_scaled_embryo <  .05 +  e_ref and e_scaled_embryo > -.05 + e_ref and U_H_embryo  >= U_H^b  [
+      ] 
+    
+    if e_scaled_embryo <  .05 +  e_ref and e_scaled_embryo > -.05 + e_ref and U_H_embryo  >= U_H^b  [    
       ;      if e_scaled_embryo <  .05 +  1 and e_scaled_embryo > -.05 + 1 and U_H_embryo  >= U_H^b  [ ;egg-size: if e_scaled_embryo <  .05 +  e_scaled and e_scaled_embryo > -.05 + e_scaled and U_H_embryo  >= U_H^b  [stop]
       ;I KEPT THIS LINE FOR NOW TO HAVE IT EASIER TO COMPARE
-      ifelse ticks = 0 ;
+      ifelse ticks = 0 ; 
       [set U_E^0 estimation
         set L L_0
         set U_E U_E^0
         set U_H 0
         set U_R 0
         set dU_R  0
-
+        
         set age-day random timestep
         stop
-      ][stop]]
-
-    ifelse U_H_embryo  > U_H^b
+      ][stop]]  
+    
+    ifelse U_H_embryo  > U_H^b  
       [ set upper-bound estimation ]
       [ set lower-bound estimation ]
     if sim > 100 [user-message ("Embryo submodel did not converge. Timestep may need to be smaller.") stop]
@@ -369,31 +369,31 @@ end
 ; they create 1 offspring and give it the following state variables and DEB parameters
 ;the initial reserves is set to the value determined by the bisection method in "calc_egg_size"
 
-to lay-eggs
-  hatch 1
-    [
+to lay-eggs 
+  hatch 1   
+    [ 
       ;the following code give offspring varibility in their DEB paramters on a normal distribution with a mean on the input paramater and a coefficent of variation equal to the cv
-      ; set cv to 0 for no variation
-
+      ; set cv to 0 for no variation  
+  
       set scatter-multiplier e ^ (random-normal 0 cv)
       set J_XAm_rate   J_XAm_rate_int * scatter-multiplier
       set g g_int / scatter-multiplier
-      set U_H^b    U_H^b_int / scatter-multiplier
-      set U_H^p    U_H^p_int / scatter-multiplier
-
-      set v_rate v_rate_int
-
+      set U_H^b    U_H^b_int / scatter-multiplier 
+      set U_H^p    U_H^p_int / scatter-multiplier 
+     
+      set v_rate v_rate_int   
+      
       set kap kap_int
       set kap_R kap_R_int
-      set k_M_rate k_M_rate_int
+      set k_M_rate k_M_rate_int                                           
       set k_J_rate k_J_rate_int
-      set  K J_XAm_rate /   F_m
-
+      set  K J_XAm_rate /   F_m 
+     
       set L L_0
       set U_E estimation
       set U_H 0
       set U_R 0
-      set dU_R  0
+      set dU_R  0 
       set h_rate 0
       set dh_rate 0
       set q_acceleration 0
@@ -401,7 +401,7 @@ to lay-eggs
       set lay-egg? 0
       set age-day random timestep
     ]
-  set lay-egg? 0
+  set lay-egg? 0  
   set U_R U_R - estimation / kap_R
 end
 
@@ -410,8 +410,8 @@ end
 ; ------------------------------------------------------------------------------------------------------------------------------------------
  ;the following procedure calculates change in prey density this procedure is only run when prey dynamics are set to "logistic" in the user interface
 
-to calc-d_X
-   set d_X ((((X_r) * X * (1 - (X / X_k)) * volume))   - sum [ S_A * J_XAm_rate   ] of turtles-here)
+to calc-d_X 
+   set d_X ((((X_r) * X * (1 - (X / X_k)) * volume))   - sum [ S_A * J_XAm_rate   ] of turtles-here) 
 end
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -419,12 +419,12 @@ end
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; the following procedure calculates the change in damage enducing compounds of an individual
 
-to calc-dq_acceleration
+to calc-dq_acceleration 
   set dq_acceleration (q_acceleration * (L ^ 3 / (v_rate / ( g * k_M_rate)) ^ 3) * sG + H_a) * e_scaled * (( v_rate / L) - ((3 / L)*  dL)) - ((3 / L ) * dL) * q_acceleration
 end
 
 ; the following procedure calculates the change in damage in the individual
-to calc-dh_rate
+to calc-dh_rate 
   set dh_rate q_acceleration - ((3 / L) * dL) * h_rate
 end
 
@@ -435,24 +435,24 @@ end
 
 to update
 ; individuals update their state variables based on the calc_state variable proccesses
-  ask turtles
+  ask turtles 
   [
     set U_E U_E + dU_E / timestep
     set U_H U_H + dU_H / timestep
     set U_R U_R + dU_R    / timestep
     set L L + dL    / timestep
-    if U_H > U_H^b
+    if U_H > U_H^b 
     [ set q_acceleration q_acceleration + dq_acceleration  / timestep
       set h_rate h_rate + dh_rate  / timestep
     ]
    if E_scaled <= 0.01 [die  ] ; starvation related mortality
-
+    
    if aging = "on" [if ticks mod timestep = age-day [if random-float 1 < h_rate [die]] ] ;ageing related mortality
    if aging = "off" [if ticks mod timestep = age-day [if random-float 1 < background-mortality [die]] ]
  ]
   if food-dynamics = "logistic"[ ask patches [ set X X + ((d_X / timestep) / volume)]]
     ask patches [ if x < 0 [ set x .000001]]
-
+     
 end
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; -------------- Movement submodel ---------------------------------------------------------------------------------------------------------
@@ -480,9 +480,9 @@ if random-number >= p-a + p-b + p-r + p-l and  random-number < p-a + p-b + p-r +
 if random-number >= p-a + p-b + p-r + p-l + p-ar and  random-number < p-a + p-b + p-r + p-l + p-ar + p-br[move-to patch-at 1 -1]
 if random-number >= p-a + p-b + p-r + p-l + p-ar + p-br and  random-number < p-a + p-b + p-r + p-l + p-ar + p-br + p-al [move-to patch-at -1 1]
 if random-number >= p-a + p-b + p-r + p-l + p-ar + p-br + p-al and  random-number < p-a + p-b + p-r + p-l + p-ar + p-br + p-al + p-bl [move-to patch-at -1 -1]
-if random-number >= p-a + p-b + p-r + p-l + p-ar + p-br + p-al + p-bl [move-to patch-at 0 0]
+if random-number >= p-a + p-b + p-r + p-l + p-ar + p-br + p-al + p-bl [move-to patch-at 0 0]    
   ]
-  ]
+  ] 
 end
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ----------------- PLOT -------------------------------------------------------------------------------------------------------------------
@@ -491,7 +491,7 @@ end
 to do-plots
   set-current-plot "stage class density"
  set-current-plot-pen "embryo"
-    ifelse any? turtles with [U_H < U_H^b] [plot count turtles with [U_H < U_H^b]]
+    ifelse any? turtles with [U_H < U_H^b] [plot count turtles with [U_H < U_H^b]] 
     [plot 0]
    set-current-plot-pen "juvenile"
   ifelse any? turtles with [U_H > U_H^b and U_H < U_H^p] [plot count turtles with [U_H > U_H^b and U_H < U_H^p]]
@@ -499,27 +499,27 @@ to do-plots
   set-current-plot-pen "adult"
   ifelse any? turtles with [U_H >= U_H^p] [plot count turtles with [U_H >= U_H^p]]
   [plot 0]
-
-
+  
+ 
   set-current-plot "food density"
   plot mean [X] of patches
-
+  
   set-current-plot "population density"
  plot count turtles with [U_H > U_H^b]
-
-
-
+  
+  
+  
   set-current-plot "size distribution"
-  histogram [l / shape_factor ] of turtles with [U_H > U_H^b]
+  histogram [l / .054 ] of turtles with [U_H > U_H^b]
 
-
+  
     set-current-plot "juv e distribution"
   histogram [e_scaled] of turtles with [U_H > U_H^b and U_H < U_H^p]
-
+  
     set-current-plot "adult e distribution"
   histogram [e_scaled] of turtles with [U_H >= U_H^p]
 end
-
+  
 @#$#@#$#@
 GRAPHICS-WINDOW
 1319
@@ -546,7 +546,6 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30.0
 
 SLIDER
 279
@@ -578,7 +577,6 @@ NIL
 NIL
 NIL
 NIL
-1
 
 BUTTON
 42
@@ -595,7 +593,6 @@ NIL
 NIL
 NIL
 NIL
-1
 
 BUTTON
 42
@@ -612,7 +609,6 @@ NIL
 NIL
 NIL
 NIL
-1
 
 PLOT
 489
@@ -628,11 +624,10 @@ NIL
 10.0
 true
 true
-"" ""
 PENS
-"embryo" 1.0 0 -16777216 true "" ""
-"juvenile" 1.0 0 -13345367 true "" ""
-"adult" 1.0 0 -2674135 true "" ""
+"embryo" 1.0 0 -16777216 true
+"juvenile" 1.0 0 -13345367 true
+"adult" 1.0 0 -2674135 true
 
 PLOT
 489
@@ -648,9 +643,8 @@ NIL
 10.0
 true
 false
-"" ""
 PENS
-"default" 0.05 1 -16777216 true "" ""
+"default" 0.05 1 -16777216 true
 
 SLIDER
 110
@@ -853,12 +847,11 @@ NIL
 0.0
 10.0
 0.0
-0.001
+0.0010
 true
 false
-"" ""
 PENS
-"default" 1.0 0 -16777216 true "" ""
+"default" 1.0 0 -16777216 true
 
 PLOT
 489
@@ -871,12 +864,11 @@ NIL
 0.0
 10.0
 0.0
-0.001
+0.0010
 true
 false
-"" ""
 PENS
-"> 2.6" 1.0 0 -2674135 true "" ""
+"> 2.6" 1.0 0 -2674135 true
 
 CHOOSER
 300
@@ -924,9 +916,8 @@ NIL
 10.0
 true
 false
-"" ""
 PENS
-"default" 0.01 1 -16777216 true "" ""
+"default" 0.01 1 -16777216 true
 
 PLOT
 1051
@@ -942,9 +933,8 @@ NIL
 10.0
 true
 false
-"" ""
 PENS
-"default" 0.01 1 -16777216 true "" ""
+"default" 0.01 1 -16777216 true
 
 INPUTBOX
 172
@@ -1083,52 +1073,49 @@ background-mortality
 0
 Number
 
-INPUTBOX
-41
-710
-121
-770
-shape_factor
-0
-1
-0
-Number
-
 @#$#@#$#@
-## WHAT IS IT?
-
+WHAT IS IT?
+-----------
 This section could give a general understanding of what the model is trying to show or explain.
 
-## HOW IT WORKS
 
+HOW IT WORKS
+------------
 This section could explain what rules the agents use to create the overall behavior of the model.
 
-## HOW TO USE IT
 
+HOW TO USE IT
+-------------
 This section could explain how to use the model, including a description of each of the items in the interface tab.
 
-## THINGS TO NOTICE
 
+THINGS TO NOTICE
+----------------
 This section could give some ideas of things for the user to notice while running the model.
 
-## THINGS TO TRY
 
+THINGS TO TRY
+-------------
 This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
 
-## EXTENDING THE MODEL
 
+EXTENDING THE MODEL
+-------------------
 This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
 
-## NETLOGO FEATURES
 
+NETLOGO FEATURES
+----------------
 This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
 
-## RELATED MODELS
 
+RELATED MODELS
+--------------
 This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
 
-## CREDITS AND REFERENCES
 
+CREDITS AND REFERENCES
+----------------------
 This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 @#$#@#$#@
 default
@@ -1423,7 +1410,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 4.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1568,9 +1555,9 @@ NetLogo 5.3.1
 @#$#@#$#@
 default
 0.0
--0.2 0 0.0 1.0
+-0.2 0 1.0 0.0
 0.0 1 1.0 0.0
-0.2 0 0.0 1.0
+0.2 0 1.0 0.0
 link direction
 true
 0

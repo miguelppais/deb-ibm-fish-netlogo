@@ -100,15 +100,18 @@ turtles-own[
 ; ==========================================================================================================================================
 
 to setup
-ca
-reset-ticks
- choose-species
+ ;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
+
  if add_my_pet? = "on"
  [convert-parameters]
 
  set L_0 .00001   ; set initial length to some very small value (embryos start off as nearly all reserves)
 
- crt initial-nr-embryos                  ; embryos are created in the beginning
+ crt 10                   ; 10 turtles are created in the beginning
  ask  turtles  [
   individual-variability  ; first their individual variability in the parameter is set
   calc-embryo-reserve-investment     ; then the initial energy is calculated for each
@@ -345,7 +348,7 @@ to calc-embryo-reserve-investment
     ifelse U_H_embryo  > U_H^b
       [ set upper-bound estimation ]
       [ set lower-bound estimation ]
-    if sim > 1000 [user-message ("Embryo submodel did not converge. Timestep may need to be smaller.") stop]
+    if sim > 200 [user-message ("Embryo submodel did not converge. Timestep may need to be smaller.") stop]
     ;if the timestep is too big relative to the speed of growth of species this will no converge
   ]
 end
@@ -436,13 +439,7 @@ to update
    if aging = "on" [if ticks mod timestep = age-day [if random-float 1 < h_rate [die]] ] ;ageing related mortality
    if aging = "off" [if ticks mod timestep = age-day [if random-float 1 < background-mortality [die]] ]
  ]
-  if food-dynamics = "logistic"[
-    ask patches [
-      if X + d_X > 0 [                       ; prevent food density from going negative
-        set X X + d_X / timestep
-        ]
-      ]
-  ]
+  if food-dynamics = "logistic"[ ask patches [ set X X + d_X / timestep]]
 end
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -479,134 +476,21 @@ to do-plots
   histogram [l / shape_factor ] of turtles with [U_H > U_H^b]        ; 0.54 is the shape correction factor for daphnia which converts volumentic length V^1/3 to structural lentgh (center of eye to base of spine in mm)
                                                             ; see Kooijman 2010 " for exlaination of shape correction factors
 
-    set-current-plot "juvenile size distribution"
+    set-current-plot "juv e distribution"
   histogram [e_scaled] of turtles with [U_H > U_H^b and U_H < U_H^p]
 
-    set-current-plot "adult size distribution"
+    set-current-plot "adult e distribution"
   histogram [e_scaled] of turtles with [U_H >= U_H^p]
-end
-
-; INTERFACE
-
-to choose-species
-  if species = "Daphnia magna" [
-    set shape_factor 0.2637
-    set v_rate_int 0.1584
-    set kap_int 0.75
-    set kap_R_int 0.95
-    set p_m 1453
-    set E_G 2877
-    set K_J_rate_int 8.24E-4
-    set E_H^b 0.009848
-    set E_H^p 0.3211
-    set zoom 0.1325
-    ;ageing
-    set h_a 4.105E-4
-    set sG -0.5
-    ;feeding
-    set F_m  1
-  ]
-
-    if species = "Daphnia pulex" [
-    set shape_factor 0.37
-    set v_rate_int 0.03627
-    set kap_int 0.763
-    set kap_R_int 0.95
-    set p_m 1400
-    set E_G 4400
-    set K_J_rate_int 0.002
-    set E_H^b 0.02251
-    set E_H^p 0.6024
-    set zoom 0.15
-    ;ageing
-    set h_a 0.0001116
-    set sG 0.0001
-    ;feeding
-    set F_m  1
-  ]
-
-  if species = "Solea solea" [
-    set shape_factor 0.149271
-    set v_rate_int 0.01124
-    set kap_int 0.7353
-    set kap_R_int 0.95
-    set p_m 22.5
-    set E_G 5222.36
-    set K_J_rate_int 0.002
-    set E_H^b 0.0581311
-    set E_H^p 151495
-    set zoom 2.66952
-    ;ageing
-    set h_a 9.3181E-9
-    set sG 0.0001
-    ;feeding
-    set F_m 1   ;says 6.5 in add_my_pet...
-  ]
-
-  if species = "Dicentrarchus labrax" [
-    set shape_factor 0.208
-    set v_rate_int 0.02877
-    set kap_int 0.7792
-    set kap_R_int 0.95
-    set p_m 18.49
-    set E_G 5223
-    set K_J_rate_int 0.002
-    set E_H^b 0.2215
-    set E_H^p 811300
-    set zoom 3.412
-    ;ageing
-    set h_a 3.659E-9
-    set sG 0.0001
-    ;feeding
-    set F_m 1
-  ]
-
-  if species = "Danio rerio" [
-    set shape_factor 0.1325
-    set v_rate_int 0.0278
-    set kap_int 0.4366
-    set kap_R_int 0.95
-    set p_m 500.9
-    set E_G 4652
-    set K_J_rate_int 0.01662
-    set E_H^b 0.5402
-    set E_H^p 2062
-    set zoom 0.2147
-    ;ageing
-    set h_a 1.96E-9
-    set sG 0.0405
-    ;feeding
-    set F_m 1
-  ]
-
-  if species = "Caretta caretta" [
-    set shape_factor 0.378719
-    set v_rate_int 0.0605892
-    set kap_int 0.641872
-    set kap_R_int 0.95
-    set p_m 12.2321
-    set E_G 7851.45
-    set K_J_rate_int 0.002
-    set E_H^b 33684.9
-    set E_H^p 1.01194E8
-    set zoom 36.3299
-    ;ageing
-    set h_a 8.20773E-11
-    set sG 0.0001
-    ;feeding
-    set F_m 1
-  ]
-
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-1336
-23
-1581
-216
 0
 0
-162.0
+173
+174
+-1
+-1
+165.0
 1
 10
 1
@@ -635,16 +519,16 @@ f_scaled
 f_scaled
 0
 1
-1
+1.0
 .01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-33
+42
 70
-99
+108
 103
 go
 go
@@ -659,9 +543,9 @@ NIL
 1
 
 BUTTON
-33
+42
 35
-99
+108
 68
 NIL
 setup
@@ -676,9 +560,9 @@ NIL
 1
 
 BUTTON
-33
+42
 104
-99
+108
 137
 go-once
 go
@@ -703,7 +587,7 @@ NIL
 0.0
 10.0
 0.0
-20.0
+650.0
 true
 true
 "" ""
@@ -714,11 +598,11 @@ PENS
 
 PLOT
 489
-533
+532
 773
-728
+727
 size distribution
-Length (cm)
+NIL
 NIL
 0.0
 0.5
@@ -733,23 +617,23 @@ PENS
 SLIDER
 110
 35
-258
+243
 68
 timestep
 timestep
-1
-150
-11
+0
+1000
+219.0
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-391
-34
-453
-79
+390
+35
+447
+80
 day
 ticks / timestep
 1
@@ -761,8 +645,8 @@ MONITOR
 34
 390
 79
-NIL
-count turtles
+population density
+count turtles\n
 0
 1
 11
@@ -775,7 +659,7 @@ CHOOSER
 food-dynamics
 food-dynamics
 "logistic" "constant"
-1
+0
 
 INPUTBOX
 39
@@ -783,7 +667,7 @@ INPUTBOX
 120
 527
 v_rate_int
-0.01124
+0.1584
 1
 0
 Number
@@ -794,7 +678,7 @@ INPUTBOX
 120
 587
 kap_int
-0.7353
+0.75
 1
 0
 Number
@@ -816,7 +700,7 @@ INPUTBOX
 122
 263
 k_M_rate_int
-0.0043083969699522825
+0.5050399721932569
 1
 0
 Number
@@ -827,7 +711,7 @@ INPUTBOX
 120
 706
 k_J_rate_int
-0.002
+8.24E-4
 1
 0
 Number
@@ -838,7 +722,7 @@ INPUTBOX
 121
 323
 g_int
-0.9772764208963077
+2.367083327922711
 1
 0
 Number
@@ -849,7 +733,7 @@ INPUTBOX
 121
 383
 U_H^b_int
-7.116351808564835E-4
+3.8364347024373776E-5
 1
 0
 Number
@@ -860,7 +744,7 @@ INPUTBOX
 121
 443
 U_H^p_int
-1854.586817105697
+0.0012508927527951279
 1
 0
 Number
@@ -871,7 +755,7 @@ INPUTBOX
 391
 755
 F_m
-1
+1.0
 1
 0
 Number
@@ -882,7 +766,7 @@ INPUTBOX
 458
 635
 r_X
-3
+1.0
 1
 0
 Number
@@ -893,7 +777,7 @@ INPUTBOX
 458
 695
 K_X
-100
+1.0
 1
 0
 Number
@@ -904,7 +788,7 @@ INPUTBOX
 458
 755
 volume
-1
+1.0
 1
 0
 Number
@@ -915,7 +799,7 @@ INPUTBOX
 391
 680
 J_XAm_rate_int
-1
+1.0
 1
 0
 Number
@@ -964,7 +848,7 @@ CHOOSER
 aging
 aging
 "on" "off"
-0
+1
 
 INPUTBOX
 300
@@ -972,7 +856,7 @@ INPUTBOX
 417
 357
 h_a
-9.3181E-9
+4.105E-4
 1
 0
 Number
@@ -983,18 +867,18 @@ INPUTBOX
 417
 417
 sG
-1.0E-4
+-0.5
 1
 0
 Number
 
 PLOT
 772
-535
+534
 1053
-728
-juvenile size distribution
-Length (cm)
+727
+juv e distribution
+NIL
 NIL
 0.0
 1.0
@@ -1008,11 +892,11 @@ PENS
 
 PLOT
 1051
-535
+534
 1312
-728
-adult size distribution
-Length (cm)
+727
+adult e distribution
+NIL
 NIL
 0.0
 1.0
@@ -1025,12 +909,12 @@ PENS
 "default" 0.01 1 -16777216 true "" ""
 
 INPUTBOX
-168
-249
-248
-309
+172
+275
+252
+335
 cv
-0.01
+0.05
 1
 0
 Number
@@ -1071,7 +955,7 @@ INPUTBOX
 255
 525
 p_m
-22.5
+1453.0
 1
 0
 Number
@@ -1082,7 +966,7 @@ INPUTBOX
 255
 586
 E_G
-5222.36
+2877.0
 1
 0
 Number
@@ -1093,7 +977,7 @@ INPUTBOX
 253
 766
 zoom
-2.66952
+0.1325
 1
 0
 Number
@@ -1104,7 +988,7 @@ INPUTBOX
 254
 646
 E_H^b
-0.0581311
+0.009848
 1
 0
 Number
@@ -1115,7 +999,7 @@ INPUTBOX
 254
 706
 E_H^p
-151495
+0.3211
 1
 0
 Number
@@ -1131,10 +1015,10 @@ add_my_pet?
 0
 
 TEXTBOX
-160
-230
-310
-248
+164
+256
+314
+274
 intraspecific variation
 11
 0.0
@@ -1146,49 +1030,34 @@ INPUTBOX
 418
 478
 background-mortality
-0.01
+0.05
 1
 0
 Number
 
 INPUTBOX
-40
-707
-140
-767
+43
+729
+143
+789
 shape_factor
-0.149271
+0.2637
 1
 0
 Number
 
-CHOOSER
-275
-81
-452
-126
-species
-species
-"Daphnia magna" "Daphnia pulex" "Solea solea" "Dicentrarchus labrax" "Danio rerio" "Caretta caretta"
-2
-
-SLIDER
-111
-72
-259
-105
-initial-nr-embryos
-initial-nr-embryos
-5
-100
-10
-5
+TEXTBOX
+601
+734
+751
+752
+length (cm)
+11
+0.0
 1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
-MODEL DESCRIPTION
+MODEL DESCRIPTION	
 
 A full model description, following the ODD protocol, is provided in "DEB-IBM_ODD-model-description.pdf", which comes with this program.
 
@@ -1206,8 +1075,8 @@ You can speed up the program by deactivating the "view updates" option on the In
 
 ## EXPORT DATA
 
-To export model output:
-- Use the file output primitives of NetLogo
+To export model output:  
+- Use the file output primitives of NetLogo  
 - Right-click on the plots to export the data displayed to files
 @#$#@#$#@
 default
@@ -1500,9 +1369,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 6.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1655,7 +1523,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

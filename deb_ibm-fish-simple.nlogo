@@ -104,14 +104,16 @@ to setup
   ;; __clear-all-and-reset-ticks should be replaced with clear-all at
   ;; the beginning of your setup procedure and reset-ticks at the end
   ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  ca
+  reset-ticks
+  choose-species
 
  if add_my_pet? = "on"
  [convert-parameters]
 
  set L_0 .00001   ; set initial length to some very small value (embryos start off as nearly all reserves)
 
- crt 10                   ; 10 turtles are created in the beginning
+ crt initial_nr_embryos                   ; embryos are created in the beginning
  ask  turtles  [
   individual-variability  ; first their individual variability in the parameter is set
   calc-embryo-reserve-investment     ; then the initial energy is calculated for each
@@ -483,15 +485,131 @@ to do-plots
   histogram [e_scaled] of turtles with [U_H >= U_H^p]
 end
 
+
+; ------------------------------------------------------------------------------------------------------------------------------------------
+; ----------------- SPECIES PARAMETERS -----------------------------------------------------------------------------------------------------
+; ------------------------------------------------------------------------------------------------------------------------------------------
+
+to choose-species
+  if species = "Daphnia magna" [
+    set shape_factor 0.2637
+    set v_rate_int 0.1584
+    set kap_int 0.75
+    set kap_R_int 0.95
+    set p_m 1453
+    set E_G 2877
+    set K_J_rate_int 8.24E-4
+    set E_H^b 0.009848
+    set E_H^p 0.3211
+    set zoom 0.1325
+    ;ageing
+    set h_a 4.105E-4
+    set sG -0.5
+    ;feeding
+    set F_m  1
+  ]
+
+    if species = "Daphnia pulex" [
+    set shape_factor 0.37
+    set v_rate_int 0.03627
+    set kap_int 0.763
+    set kap_R_int 0.95
+    set p_m 1400
+    set E_G 4400
+    set K_J_rate_int 0.002
+    set E_H^b 0.02251
+    set E_H^p 0.6024
+    set zoom 0.15
+    ;ageing
+    set h_a 0.0001116
+    set sG 0.0001
+    ;feeding
+    set F_m  1
+  ]
+
+  if species = "Solea solea" [
+    set shape_factor 0.149271
+    set v_rate_int 0.01124
+    set kap_int 0.7353
+    set kap_R_int 0.95
+    set p_m 22.5
+    set E_G 5222.36
+    set K_J_rate_int 0.002
+    set E_H^b 0.0581311
+    set E_H^p 151495
+    set zoom 2.66952
+    ;ageing
+    set h_a 9.3181E-9
+    set sG 0.0001
+    ;feeding
+    set F_m 1   ;says 6.5 in add_my_pet...
+  ]
+
+  if species = "Dicentrarchus labrax" [
+    set shape_factor 0.208
+    set v_rate_int 0.02877
+    set kap_int 0.7792
+    set kap_R_int 0.95
+    set p_m 18.49
+    set E_G 5223
+    set K_J_rate_int 0.002
+    set E_H^b 0.2215
+    set E_H^p 811300
+    set zoom 3.412
+    ;ageing
+    set h_a 3.659E-9
+    set sG 0.0001
+    ;feeding
+    set F_m 1
+  ]
+
+    if species = "Argyrosomus regius" [
+    set shape_factor 0.2054
+    set v_rate_int 0.10285
+    set kap_int 0.87469
+    set kap_R_int 0.95
+    set p_m 7.1589
+    set E_G 5394.55
+    set K_J_rate_int 0.00039266
+    set E_H^b 0.2639
+    set E_H^p 4.12E6
+    set zoom 0.0785
+    ;ageing
+    set h_a 2.461E-9
+    set sG 0.0001
+    ;feeding
+    set F_m 6.5
+  ]
+
+  if species = "Danio rerio" [
+    set shape_factor 0.1325
+    set v_rate_int 0.0278
+    set kap_int 0.4366
+    set kap_R_int 0.95
+    set p_m 500.9
+    set E_G 4652
+    set K_J_rate_int 0.01662
+    set E_H^b 0.5402
+    set E_H^p 2062
+    set zoom 0.2147
+    ;ageing
+    set h_a 1.96E-9
+    set sG 0.0405
+    ;feeding
+    set F_m 1
+  ]
+
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-1336
-23
-1581
-216
-0
-0
-162.0
+1329
+49
+1502
+223
+-1
+-1
+165.0
 1
 10
 1
@@ -520,7 +638,7 @@ f_scaled
 f_scaled
 0
 1
-1
+1.0
 .01
 1
 NIL
@@ -618,22 +736,22 @@ PENS
 SLIDER
 110
 35
-243
+250
 68
 timestep
 timestep
 0
 1000
-150
+1000.0
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-390
+395
 35
-447
+450
 80
 day
 ticks / timestep
@@ -643,9 +761,9 @@ ticks / timestep
 
 MONITOR
 275
-34
+35
 390
-79
+80
 population density
 count turtles\n
 0
@@ -668,7 +786,7 @@ INPUTBOX
 120
 527
 v_rate_int
-0.1584
+0.10285
 1
 0
 Number
@@ -679,7 +797,7 @@ INPUTBOX
 120
 587
 kap_int
-0.75
+0.87469
 1
 0
 Number
@@ -701,7 +819,7 @@ INPUTBOX
 122
 263
 k_M_rate_int
-0.5050399721932569
+0.0013270615714007655
 1
 0
 Number
@@ -712,7 +830,7 @@ INPUTBOX
 120
 706
 k_J_rate_int
-8.24E-4
+3.9266E-4
 1
 0
 Number
@@ -723,7 +841,7 @@ INPUTBOX
 121
 323
 g_int
-2.367083327922711
+987.2873354471334
 1
 0
 Number
@@ -734,7 +852,7 @@ INPUTBOX
 121
 383
 U_H^b_int
-3.8364347024373776E-5
+0.41075002537930383
 1
 0
 Number
@@ -745,7 +863,7 @@ INPUTBOX
 121
 443
 U_H^p_int
-0.0012508927527951279
+6412618.812287729
 1
 0
 Number
@@ -756,7 +874,7 @@ INPUTBOX
 391
 755
 F_m
-1
+6.5
 1
 0
 Number
@@ -767,7 +885,7 @@ INPUTBOX
 458
 635
 r_X
-1
+1.0
 1
 0
 Number
@@ -778,7 +896,7 @@ INPUTBOX
 458
 695
 K_X
-1
+1.0
 1
 0
 Number
@@ -789,7 +907,7 @@ INPUTBOX
 458
 755
 volume
-1
+1.0
 1
 0
 Number
@@ -800,7 +918,7 @@ INPUTBOX
 391
 680
 J_XAm_rate_int
-1
+1.0
 1
 0
 Number
@@ -849,7 +967,7 @@ CHOOSER
 aging
 aging
 "on" "off"
-0
+1
 
 INPUTBOX
 300
@@ -857,7 +975,7 @@ INPUTBOX
 417
 357
 h_a
-4.105E-4
+2.461E-9
 1
 0
 Number
@@ -868,7 +986,7 @@ INPUTBOX
 417
 417
 sG
--0.5
+1.0E-4
 1
 0
 Number
@@ -956,7 +1074,7 @@ INPUTBOX
 255
 525
 p_m
-1453
+7.1589
 1
 0
 Number
@@ -967,7 +1085,7 @@ INPUTBOX
 255
 586
 E_G
-2877
+5394.55
 1
 0
 Number
@@ -978,7 +1096,7 @@ INPUTBOX
 253
 766
 zoom
-0.1325
+0.0785
 1
 0
 Number
@@ -989,7 +1107,7 @@ INPUTBOX
 254
 646
 E_H^b
-0.009848
+0.2639
 1
 0
 Number
@@ -1000,7 +1118,7 @@ INPUTBOX
 254
 706
 E_H^p
-0.3211
+4120000.0
 1
 0
 Number
@@ -1042,7 +1160,7 @@ INPUTBOX
 143
 789
 shape_factor
-0.2637
+0.2054
 1
 0
 Number
@@ -1057,8 +1175,33 @@ length (cm)
 0.0
 1
 
+SLIDER
+109
+70
+249
+103
+initial_nr_embryos
+initial_nr_embryos
+5
+100
+10.0
+5
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+275
+85
+450
+130
+species
+species
+"Daphnia magna" "Daphnia pulex" "Solea solea" "Dicentrarchus labrax" "Argyrosomus regius" "Danio rerio"
+4
+
 @#$#@#$#@
-MODEL DESCRIPTION
+MODEL DESCRIPTION	
 
 A full model description, following the ODD protocol, is provided in "DEB-IBM_ODD-model-description.pdf", which comes with this program.
 
@@ -1076,8 +1219,8 @@ You can speed up the program by deactivating the "view updates" option on the In
 
 ## EXPORT DATA
 
-To export model output:
-- Use the file output primitives of NetLogo
+To export model output:  
+- Use the file output primitives of NetLogo  
 - Right-click on the plots to export the data displayed to files
 @#$#@#$#@
 default
@@ -1370,9 +1513,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 6.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1525,7 +1667,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
-0
+1
 @#$#@#$#@
