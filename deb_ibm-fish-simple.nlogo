@@ -581,6 +581,25 @@ to choose-species
     set F_m 6.5
   ]
 
+    if species = "Pomatoschistus minutus" [
+    set shape_factor 0.128
+    set v_rate_int 0.01346
+    set kap_int 0.9548
+    set kap_R_int 0.95
+    set p_m 128.7
+    set E_G 5181
+    set K_J_rate_int 0.002
+    set E_H^b 0.004883
+    set E_H^p 56.79
+    set zoom 1.243
+    ;ageing
+    set h_a 8.868E-6
+    set sG 0.0001
+    ;feeding
+    set F_m 6.5
+    set J_Xam_rate_int 1
+  ]
+
   if species = "Danio rerio" [
     set shape_factor 0.1325
     set v_rate_int 0.0278
@@ -1193,11 +1212,11 @@ HORIZONTAL
 CHOOSER
 275
 85
-450
+452
 130
 species
 species
-"Daphnia magna" "Daphnia pulex" "Solea solea" "Dicentrarchus labrax" "Argyrosomus regius" "Danio rerio"
+"Daphnia magna" "Daphnia pulex" "Solea solea" "Dicentrarchus labrax" "Argyrosomus regius" "Pomatoschistus minutus" "Danio rerio"
 4
 
 @#$#@#$#@
