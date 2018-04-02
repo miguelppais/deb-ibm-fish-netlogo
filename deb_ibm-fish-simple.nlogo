@@ -404,7 +404,8 @@ end
  ;the following procedure calculates change in prey density this procedure is only run when prey dynamics are set to "logistic" in the user interface
 
 to calc-d_X
-   set d_X (r_X) * X * (1 - (X / K_X))   - sum [ S_A * J_XAm_rate   ] of turtles-here / volume
+   set d_X (r_X) * X * (1 - (X / K_X)) - sum [ S_A * J_XAm_rate   ] of turtles-here / volume
+  if d_X < 0 [set d_X 0]
 end
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -507,6 +508,7 @@ to choose-species
     set sG -0.5
     ;feeding
     set F_m  1
+    set J_Xam_rate_int 1
   ]
 
     if species = "Daphnia pulex" [
@@ -525,6 +527,7 @@ to choose-species
     set sG 0.0001
     ;feeding
     set F_m  1
+    set J_Xam_rate_int 1
   ]
 
   if species = "Solea solea" [
@@ -543,6 +546,7 @@ to choose-species
     set sG 0.0001
     ;feeding
     set F_m 1   ;says 6.5 in add_my_pet...
+    set J_Xam_rate_int 1
   ]
 
   if species = "Dicentrarchus labrax" [
@@ -561,6 +565,7 @@ to choose-species
     set sG 0.0001
     ;feeding
     set F_m 1
+    set J_Xam_rate_int 1
   ]
 
     if species = "Argyrosomus regius" [
@@ -579,6 +584,7 @@ to choose-species
     set sG 0.0001
     ;feeding
     set F_m 6.5
+    set J_Xam_rate_int 1
   ]
 
     if species = "Pomatoschistus minutus" [
@@ -616,6 +622,7 @@ to choose-species
     set sG 0.0405
     ;feeding
     set F_m 1
+    set J_Xam_rate_int 1
   ]
 
 
@@ -725,7 +732,7 @@ NIL
 0.0
 10.0
 0.0
-650.0
+10.0
 true
 true
 "" ""
@@ -761,7 +768,7 @@ timestep
 timestep
 0
 1000
-1000.0
+24.0
 1
 1
 NIL
@@ -805,7 +812,7 @@ INPUTBOX
 120
 527
 v_rate_int
-0.10285
+0.01346
 1
 0
 Number
@@ -816,7 +823,7 @@ INPUTBOX
 120
 587
 kap_int
-0.87469
+0.9548
 1
 0
 Number
@@ -838,7 +845,7 @@ INPUTBOX
 122
 263
 k_M_rate_int
-0.0013270615714007655
+0.02484076433121019
 1
 0
 Number
@@ -849,7 +856,7 @@ INPUTBOX
 120
 706
 k_J_rate_int
-3.9266E-4
+0.002
 1
 0
 Number
@@ -860,7 +867,7 @@ INPUTBOX
 121
 323
 g_int
-987.2873354471334
+0.4359221899044908
 1
 0
 Number
@@ -871,7 +878,7 @@ INPUTBOX
 121
 383
 U_H^b_int
-0.41075002537930383
+2.9144020188267976E-5
 1
 0
 Number
@@ -882,7 +889,7 @@ INPUTBOX
 121
 443
 U_H^p_int
-6412618.812287729
+0.3389491924005198
 1
 0
 Number
@@ -915,7 +922,7 @@ INPUTBOX
 458
 695
 K_X
-1.0
+500.0
 1
 0
 Number
@@ -926,7 +933,7 @@ INPUTBOX
 458
 755
 volume
-1.0
+100.0
 1
 0
 Number
@@ -937,7 +944,7 @@ INPUTBOX
 391
 680
 J_XAm_rate_int
-1.0
+65.0
 1
 0
 Number
@@ -986,7 +993,7 @@ CHOOSER
 aging
 aging
 "on" "off"
-1
+0
 
 INPUTBOX
 300
@@ -994,7 +1001,7 @@ INPUTBOX
 417
 357
 h_a
-2.461E-9
+8.868E-6
 1
 0
 Number
@@ -1052,7 +1059,7 @@ INPUTBOX
 252
 335
 cv
-0.05
+0.1
 1
 0
 Number
@@ -1093,7 +1100,7 @@ INPUTBOX
 255
 525
 p_m
-7.1589
+128.7
 1
 0
 Number
@@ -1104,7 +1111,7 @@ INPUTBOX
 255
 586
 E_G
-5394.55
+5181.0
 1
 0
 Number
@@ -1115,7 +1122,7 @@ INPUTBOX
 253
 766
 zoom
-0.0785
+1.243
 1
 0
 Number
@@ -1126,7 +1133,7 @@ INPUTBOX
 254
 646
 E_H^b
-0.2639
+0.004883
 1
 0
 Number
@@ -1137,7 +1144,7 @@ INPUTBOX
 254
 706
 E_H^p
-4120000.0
+56.79
 1
 0
 Number
@@ -1168,7 +1175,7 @@ INPUTBOX
 418
 478
 background-mortality
-0.05
+0.0
 1
 0
 Number
@@ -1179,7 +1186,7 @@ INPUTBOX
 143
 789
 shape_factor
-0.2054
+0.128
 1
 0
 Number
@@ -1203,7 +1210,7 @@ initial_nr_embryos
 initial_nr_embryos
 5
 100
-10.0
+40.0
 5
 1
 NIL
@@ -1217,7 +1224,7 @@ CHOOSER
 species
 species
 "Daphnia magna" "Daphnia pulex" "Solea solea" "Dicentrarchus labrax" "Argyrosomus regius" "Pomatoschistus minutus" "Danio rerio"
-4
+5
 
 @#$#@#$#@
 MODEL DESCRIPTION	
