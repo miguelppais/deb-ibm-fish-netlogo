@@ -394,12 +394,12 @@ to calc-embryo-reserve-investment
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-1048
-46
-1293
-242
-0
-0
+1010
+31
+1183
+205
+-1
+-1
 165.0
 1
 10
@@ -532,7 +532,7 @@ INPUTBOX
 89
 640
 g_int
-10
+10.0
 1
 0
 Number
@@ -565,7 +565,7 @@ INPUTBOX
 373
 278
 H_int
-1585
+1585.0
 1
 0
 Number
@@ -576,7 +576,7 @@ INPUTBOX
 373
 216
 J_XAm_rate_int
-380000
+380000.0
 1
 0
 Number
@@ -682,7 +682,7 @@ INPUTBOX
 192
 71
 timestep
-50
+50.0
 1
 0
 Number
@@ -699,10 +699,10 @@ rho
 Number
 
 PLOT
-615
-191
-1230
-341
+577
+176
+1192
+326
 Population abundance
 Day
 Abundance
@@ -714,7 +714,7 @@ true
 false
 "" ""
 PENS
-"total" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\n  if any? turtles with [juvenile = 1] \n   [plot count turtles with [juvenile = 1]]]"
+"total" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\n  if any? turtles with [juvenile = 1]\n   [plot count turtles with [juvenile = 1]]]"
 
 INPUTBOX
 275
@@ -722,7 +722,7 @@ INPUTBOX
 414
 740
 stress-level
-0
+10.0
 1
 0
 Number
@@ -735,13 +735,13 @@ CHOOSER
 PMoA
 PMoA
 "growth stress" "reproduction stress" "maintenance stress" "feeding stress"
-0
+1
 
 MONITOR
-1253
-286
-1463
-331
+1215
+271
+1425
+316
 Mean population abundance
 mean-abundance-list
 2
@@ -749,10 +749,10 @@ mean-abundance-list
 11
 
 MONITOR
-1253
-334
-1464
-379
+1215
+319
+1426
+364
 Mean population biomass (cubic mm)
 mean-biomass-list
 2
@@ -760,10 +760,10 @@ mean-biomass-list
 11
 
 MONITOR
-1253
-381
-1465
-426
+1215
+366
+1427
+411
 Mean length of individuals (mm)
 mean-length-list
 2
@@ -771,10 +771,10 @@ mean-length-list
 11
 
 MONITOR
-1253
-425
-1467
-470
+1215
+410
+1429
+455
 Mean resource density (fraction of H)
 mean-food-list / H_int
 2
@@ -789,7 +789,7 @@ CHOOSER
 Rmax
 Rmax
 3170 7925 15850 31700
-3
+1
 
 TEXTBOX
 97
@@ -972,10 +972,10 @@ Daphnia specifc parameters
 1
 
 PLOT
-614
-41
-1231
-191
+576
+26
+1193
+176
 Population biomass
 Day
 Biomass
@@ -990,10 +990,10 @@ PENS
 "Biomass" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\nplot sum [L ^ 3] of turtles with [juvenile = 1]]"
 
 PLOT
-614
-341
-1231
-502
+576
+326
+1193
+487
 Mean length of individuals in population
 Day
 Length (mm)
@@ -1018,10 +1018,10 @@ stess levels corresponding with various reductions in reproduction in a 21 day d
 1
 
 PLOT
-614
-502
-1232
-652
+576
+487
+1194
+637
 Resource density (fraction of half-saturation coefficient)
 Day
 R / H
@@ -1056,10 +1056,10 @@ Stress begins on day 150
 1
 
 TEXTBOX
-1255
-238
-1405
-280
+1217
+223
+1367
+265
 Population variables measured and averaged over days 300-600
 11
 0.0
@@ -1392,9 +1392,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 6.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -12168,7 +12167,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@
