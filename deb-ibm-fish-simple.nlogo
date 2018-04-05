@@ -1,15 +1,14 @@
-; script-file DEB-IBM for Daphnia with different PMoAs
-; in "Limitations of extrapolating toxic effects on reproduction to the population level" Ecological Applications
-; Author: Ben Martin (btmarti25@gmail.com)
+; script-file DEB-IBM with different PMoAs
+; based on  "Limitations of extrapolating toxic effects on reproduction to the population level" Ecological Applications - by Ben Martin (btmarti25@gmail.com)
 ; ==========================================================================================================================================
 ; ========================== DEFINITION OF PARAMETERS AND STATE VARIABLES ==================================================================
 ; ==========================================================================================================================================
 ; global parameters: are accessible for patches and turtles
-globals[
+globals [
  repro-stress food-stress
  food-list   abundance-list  biomass-list  length-list ;book keeping variables for populations metrics
  mean-food-list mean-abundance-list  mean-biomass-list  mean-length-list
- volume ; volume of water being simulated (adjusted in startup to result in ~150 daphnia in control simulations)
+ ;volume ; volume of water being simulated (adjusted in startup to result in ~150 daphnia in control simulations)
  day
   ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ; - - - - - - - - - - - - - - - EMBRYO (parameters used to calculate the costs for an egg / initial reserves) - - - - - - - - --
@@ -41,7 +40,7 @@ patches-own ; Resource state variables are patch variables
 ; the notation follows the DEBtool-notation as far as possible
 ; deviation: rates are indicated with "_rate" rather than a dot
 ; each individual(turtle) in the model has the following parameters
-turtles-own[
+turtles-own [
   ; - - - - - - - - - - - - - - - STATE VARIABLES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   L           ; cm, structural length
   dL          ; change of structural length in time
@@ -90,7 +89,10 @@ turtles-own[
 ; ========================== SETUP PROCEDURE: SETTING INITIAL CONDITIONS ===================================================================
 ; =============================== ===========================================================================================================
 to setup
-  __clear-all-and-reset-ticks
+  ca
+  reset-ticks
+  choose-species
+  if add_my_pet? [convert-parameters]
   set abundance-list []
   set  biomass-list []
   set length-list []
@@ -98,16 +100,23 @@ to setup
   set food-stress 1
   set repro-stress 1
   set crit-mass 0.4 ; if mass (L^3) falls below crit-mass of previous maximum max (max-L^3) then there is high mort probability in death? submodel
+  if prey-dynamics = "logistic" [
+   ask patches [
+     set R 1
+    ]
+  ]
+  if prey-dynamics = "chemostat" [
   if Rmax = 3170 [set volume 2100000 * .0145 / rho]
   if Rmax = 7925 [set volume 670000 * .0145 / rho]
   if Rmax = 15850 [set volume 320000 * .0145 / rho]
   if Rmax = 31700 [set volume 160000 * .0145 / rho]
+  ]
   calc-embryo-reserve-investment
-  crt 150 ;number of initial daphnia to start simulations with
+  crt initial_nr_embryos ;number of initial embryos to start simulations with
   ask  turtles  [
     newborn-initialization  ; first their individual variability in the parameter is set     ; then the initial energy is calculated for each
   ]
-  ask patches [ set R    H_int ]; set initial value of prey to their carrying capacity
+  ask patches [set R H_int]; set initial value of prey to their carrying capacity
 end
 ; ==========================================================================================================================================
 ; ========================== GO PROCEDURE: RUNNING THE MODEL ===============================================================================
@@ -115,9 +124,8 @@ end
 ; the go statement below is the order in which all procedures are run each timestep
 
 to go
-  if ticks / timestep = 150 [add-stress]  ;initate stress on day 150
-  ask turtles with [juvenile = 1]
-  [
+  if ticks / timestep = start_stress_day [add-stress]  ;initate stress on this day
+  ask turtles with [juvenile = 1] [
     calc-dU_E                       ; first all individuals calculate the change in their state variables based on the current conditions
     calc-dU_H
     calc-dU_R
@@ -125,20 +133,24 @@ to go
     calc-dq_acceleration
     calc-dh_rate
   ]
-  ask patches  [ calc-d_X]
-  ask turtles  [ update-individuals]       ; the the state variables of the individuals updated based on the delta value
+  if prey-dynamics = "chemostat" [
+    ask patches  [calc-d_X-chemostat]
+  ]
+  if prey-dynamics = "logistic" [
+    ask patches  [calc-d_X-logistic]
+  ]
+  ask turtles  [update-individuals]       ; the the state variables of the individuals updated based on the delta value
   update-environment  ; the the state variables of the environment are updated based on the delta value
   death?
-  ask turtles with [U_H >= U_H^p]
-  [
+  ask turtles with [U_H >= U_H^p] [
     set molt-time molt-time + (1 / timestep)
-    if molt-time > t-molt
-    [lay-eggs]
+    if molt-time > t-molt [lay-eggs]
   ]
+
+  tick
  ;----------------------------------
  ; updating and observation steps
  ;----------------------------------
-  tick
   if count turtles < 1 [stop]
   set day ticks / timestep
   if ticks / timestep > 300  [list-calc] ;start recording population response at day 300
@@ -149,12 +161,26 @@ to go
     set mean-length-list mean length-list
     set mean-food-list mean food-list
   ]
-  if ticks /  timestep > 600  [stop] ;end simulation after day
+  if ticks /  timestep > simulation_days  [stop] ;end simulation after day
 end
 
 ; ==========================================================================================================================================
 ; ========================== SUBMODELS =====================================================================================================
 ; ==========================================================================================================================================
+
+; ------------------------------------------------------------------------------------------------------------------------------------------
+; ---------------- conversion of parameters: from add_my_pet to standard DEB parameters ----------------------------------------------------
+; ------------------------------------------------------------------------------------------------------------------------------------------
+
+to convert-parameters
+  set U_H^b_int precision (E_H^b / p_Am) 4
+  set U_H^p_int precision (E_H^p / p_Am) 4
+  set k_M_rate_int precision (p_M / E_G) 4
+  set g_int precision ((E_G * v_rate_int / p_Am) / kap_int) 4
+end
+
+
+
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ------------------------ newborn-initialization ------------------------------------------------------------------------------------------
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -178,10 +204,10 @@ to newborn-initialization
   set k_M_rate k_M_rate_int
   set k_J_rate k_J_rate_int
    set H  H_int * scatter-multiplier
-  if PMoA = "maintenance stress" and ticks / timestep > 150
+  if PMoA = "maintenance costs" and ticks / timestep > 150
   [ set k_M_rate k_M_rate_int  *   (1 + stress-level)
     set k_J_rate k_J_rate_int * (1 + stress-level)]
-  if PMoA = "growth stress"  and ticks / timestep > 150
+  if PMoA = "growth costs"  and ticks / timestep > 150
   [set k_m_rate k_m_rate_int / (1 + stress-level)
    set g (g_int * ( 1 + stress-level)) / scatter-multiplier ]
 end
@@ -195,7 +221,7 @@ end
 ; for embryos f = 0 because they do not feed exogenously
 
 to calc-dU_E
-  set f R / (H + R)
+  ifelse prey-dynamics = "constant" [set f f_scaled] [set f R / (H + R)]
   set e_scaled v_rate * (U_E / L ^ 3)
   set S_C L ^ 2 * (g * e_scaled / (g + e_scaled)) * (1 + (L / (g * (V_rate / ( g * K_M_rate)))))
   set S_A  food-stress * f * max-L ^ 2 ;
@@ -264,8 +290,13 @@ end
 ; ----------------- Resource dynamics ----------------------------------------------------------------------------------------------------------
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; chemostat prey dynamics (rho is the dilution rate, Rmax is the maximum resource density)
-to calc-d_X
-  set d_x  (Rmax - R) * (  rho) - (sum [S_A * J_XAm_rate] of turtles-here / volume)
+to calc-d_X-chemostat
+  set d_X  (Rmax - R) * (rho) - (sum [S_A * J_XAm_rate] of turtles-here / volume)
+end
+
+; logistic prey dynamics (rX is the growth rate, KX is the carrying capacity)
+to calc-d_X-logistic
+  set d_X (rX) * R * (1 - (R / KX)) - (sum [S_A * J_XAm_rate] of turtles-here / volume)
 end
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 ; ----------------- AGEING -----------------------------------------------------------------------------------------------------------------
@@ -338,13 +369,14 @@ to update-environment
   [set R  R + (d_x / timestep) ]
 end
 ; ------------------------------------------------------------------------------------------------------------------------------------------
-; ----------------- add stressor on day 150 ------------------------------------------------------------------------------------------------
+; ----------------- add stressor on a specific day (default 150) ---------------------------------------------------------------------------
 ; ------------------------------------------------------------------------------------------------------------------------------------------
 to add-stress
-  if PMoA = "maintenance stress" [ask turtles [ set k_m_rate k_m_rate * ( 1 + stress-level) set k_j_rate k_j_rate * (1 + stress-level)]]
-  if PMoA = "growth stress"  [ask turtles [set k_m_rate k_m_rate / (1 + stress-level) set g g * ( 1 + stress-level)]]
-  if PMoA = "feeding stress"[set food-stress 1 / (stress-level + 1)]
-  if PMoA = "reproduction stress"[set repro-stress exp(- stress-level)]
+  if PMoA = "maintenance costs" [ask turtles [ set k_m_rate k_m_rate * ( 1 + stress-level) set k_j_rate k_j_rate * (1 + stress-level)]]
+  if PMoA = "growth costs"  [ask turtles [set k_m_rate k_m_rate / (1 + stress-level) set g g * ( 1 + stress-level)]]
+  if PMoA = "feeding ability"[set food-stress 1 / (stress-level + 1)]
+  if PMoA = "embryonic hazard"[set repro-stress exp(- stress-level)]
+  if PMoA = "cost per egg" [ask turtles [set kap_R kap_R / (1 - stress-level)]]
 end
 
 ; ------------------------------------------------------------------------------------------------------------------------------------------
@@ -392,12 +424,96 @@ to calc-embryo-reserve-investment
     [user-message ("Embryo submodel did not converge. Timestep may need to be smaller." )  stop ] ;if the timestep is too big relative to the speed of growth of species this will no converge
   ]
 end
+
+; ------------------------------------------------------------------------------------------------------------------------------------------
+; ----------------- SPECIES PARAMETERS -----------------------------------------------------------------------------------------------------
+; ------------------------------------------------------------------------------------------------------------------------------------------
+
+to choose-species
+  if species = "Daphnia magna" [
+    set p_Am 315.611
+    set shape_factor 0.264
+    set v_rate_int 0.1584
+    set kap_int 0.61
+    set kap_R_int 0.95
+    set p_m 1453
+    set E_G 4400
+    set K_J_rate_int 0.002
+    set E_H^b 0.01379
+    set E_H^p 0.3211
+    ;ageing
+    set h_a 0.0003105
+    set sG -0.3
+    ;feeding
+    set F_m  6.5
+    set J_Xam_rate_int 380000
+  ]
+
+    if species = "Daphnia pulex" [
+    set p_Am 520.825
+    set shape_factor 0.37
+    set v_rate_int 0.03627
+    set kap_int 0.763
+    set kap_R_int 0.95
+    set p_m 1400
+    set E_G 4400
+    set K_J_rate_int 0.002
+    set E_H^b 0.02251
+    set E_H^p 0.6024
+    ;ageing
+    set h_a 0.0001116
+    set sG 0.0001
+    ;feeding
+    set F_m  1
+    set J_Xam_rate_int 380000
+  ]
+
+    if species = "Pomatoschistus minutus" [
+    set p_Am 167.547
+    set shape_factor 0.128
+    set v_rate_int 0.01346
+    set kap_int 0.9548
+    set kap_R_int 0.95
+    set p_m 128.7
+    set E_G 5181
+    set K_J_rate_int 0.002
+    set E_H^b 0.004883
+    set E_H^p 56.79
+    ;ageing
+    set h_a 8.868E-6
+    set sG 0.0001
+    ;feeding
+    set F_m 6.5
+    set J_Xam_rate_int 1
+  ]
+
+  if species = "Danio rerio" [
+    set p_Am 246.32
+    set shape_factor 0.1325
+    set v_rate_int 0.0278
+    set kap_int 0.4366
+    set kap_R_int 0.95
+    set p_m 500.9
+    set E_G 4652
+    set K_J_rate_int 0.01662
+    set E_H^b 0.5402
+    set E_H^p 2062
+    ;ageing
+    set h_a 1.96E-9
+    set sG 0.0405
+    ;feeding
+    set F_m 1
+    set J_Xam_rate_int 1
+  ]
+
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-1010
-31
-1183
-205
+1410
+10
+1583
+184
 -1
 -1
 165.0
@@ -421,10 +537,10 @@ ticks
 30.0
 
 BUTTON
-25
-44
-91
-77
+85
+50
+151
+83
 go
 go
 T
@@ -438,10 +554,10 @@ NIL
 1
 
 BUTTON
-25
-11
-91
-44
+15
+50
+81
+83
 NIL
 setup
 NIL
@@ -455,10 +571,10 @@ NIL
 1
 
 BUTTON
-25
-76
-91
-109
+155
+50
+221
+83
 go-once
 go
 NIL
@@ -472,9 +588,9 @@ NIL
 1
 
 INPUTBOX
-9
+10
 520
-90
+91
 580
 v_rate_int
 18.1
@@ -483,10 +599,10 @@ v_rate_int
 Number
 
 INPUTBOX
-11
-162
-92
-222
+10
+160
+91
+220
 kap_int
 0.678
 1
@@ -495,9 +611,9 @@ Number
 
 INPUTBOX
 10
-222
+220
 91
-282
+280
 kap_R_int
 0.95
 1
@@ -505,10 +621,10 @@ kap_R_int
 Number
 
 INPUTBOX
-9
-282
-90
-342
+10
+280
+91
+340
 k_M_rate_int
 0.3314
 1
@@ -517,9 +633,9 @@ Number
 
 INPUTBOX
 10
-342
+340
 90
-402
+400
 k_J_rate_int
 0.1921
 1
@@ -527,9 +643,9 @@ k_J_rate_int
 Number
 
 INPUTBOX
-9
+10
 580
-89
+90
 640
 g_int
 10.0
@@ -539,9 +655,9 @@ Number
 
 INPUTBOX
 10
-401
+400
 90
-461
+460
 U_H^b_int
 0.1108
 1
@@ -560,10 +676,10 @@ U_H^p_int
 Number
 
 INPUTBOX
-280
-216
-373
-278
+255
+220
+348
+282
 H_int
 1585.0
 1
@@ -571,10 +687,10 @@ H_int
 Number
 
 INPUTBOX
-280
-156
-373
-216
+255
+160
+348
+220
 J_XAm_rate_int
 380000.0
 1
@@ -582,10 +698,10 @@ J_XAm_rate_int
 Number
 
 INPUTBOX
-9
-662
-89
-722
+10
+670
+90
+730
 h_a
 3.04E-6
 1
@@ -593,10 +709,10 @@ h_a
 Number
 
 INPUTBOX
-9
-722
-89
-782
+10
+730
+90
+790
 sG
 0.019
 1
@@ -604,10 +720,10 @@ sG
 Number
 
 INPUTBOX
-281
-62
-361
-122
+10
+835
+90
+895
 cv
 0.05
 1
@@ -615,50 +731,50 @@ cv
 Number
 
 TEXTBOX
-20
-125
-238
-167
-DEB-IBM parameters for D. \nmagna (Martin et al 2013 AmNat)\n
+15
+140
+135
+158
+DEB-IBM parameters\n
 11
 0.0
 1
 
 TEXTBOX
-280
-132
-430
-150
+255
+142
+405
+160
 Feeding parameters
 11
 0.0
 1
 
 TEXTBOX
-11
-645
-161
-663
+15
+650
+165
+668
 Ageing parameters
 11
 0.0
 1
 
 TEXTBOX
-280
-25
-521
-81
-Coefficient of variation of parameter values\nsee ODD and Martin et al. 2013 AmNat
+99
+853
+249
+888
+Coefficient of variation of parameter values
 11
 0.0
 1
 
 INPUTBOX
-279
-363
-395
-423
+255
+375
+350
+435
 t-molt
 2.8
 1
@@ -666,10 +782,10 @@ t-molt
 Number
 
 INPUTBOX
-279
-305
-395
-365
+255
+315
+350
+375
 juv-mort
 0.09
 1
@@ -677,21 +793,10 @@ juv-mort
 Number
 
 INPUTBOX
-93
-11
-192
-71
-timestep
-50.0
-1
-0
-Number
-
-INPUTBOX
-276
-455
-431
-515
+1160
+380
+1315
+440
 rho
 0.05
 1
@@ -699,10 +804,10 @@ rho
 Number
 
 PLOT
-577
-176
-1192
-326
+535
+160
+1150
+310
 Population abundance
 Day
 Abundance
@@ -717,31 +822,31 @@ PENS
 "total" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\n  if any? turtles with [juvenile = 1]\n   [plot count turtles with [juvenile = 1]]]"
 
 INPUTBOX
-275
-680
-414
-740
+600
+695
+745
+755
 stress-level
-10.0
+0.22
 1
 0
 Number
 
 CHOOSER
-275
-634
-447
-679
+600
+649
+745
+694
 PMoA
 PMoA
-"growth stress" "reproduction stress" "maintenance stress" "feeding stress"
-1
+"maintenance costs" "growth costs" "feeding ability" "cost per egg" "embryonic hazard"
+0
 
 MONITOR
-1215
-271
-1425
-316
+1160
+55
+1370
+100
 Mean population abundance
 mean-abundance-list
 2
@@ -749,10 +854,10 @@ mean-abundance-list
 11
 
 MONITOR
-1215
-319
-1426
-364
+1160
+103
+1371
+148
 Mean population biomass (cubic mm)
 mean-biomass-list
 2
@@ -760,10 +865,10 @@ mean-biomass-list
 11
 
 MONITOR
-1215
-366
-1427
-411
+1160
+150
+1372
+195
 Mean length of individuals (mm)
 mean-length-list
 2
@@ -771,10 +876,10 @@ mean-length-list
 11
 
 MONITOR
-1215
-410
-1429
-455
+1160
+194
+1374
+239
 Mean resource density (fraction of H)
 mean-food-list / H_int
 2
@@ -782,20 +887,20 @@ mean-food-list / H_int
 11
 
 CHOOSER
-276
-515
-431
-560
+1160
+440
+1315
+485
 Rmax
 Rmax
 3170 7925 15850 31700
 1
 
 TEXTBOX
-97
-177
-247
-205
+96
+175
+246
+203
 \"kappa\" Fraction of mobilized energy to soma
 11
 0.0
@@ -812,10 +917,10 @@ TEXTBOX
 1
 
 TEXTBOX
-97
-299
-247
-327
+98
+297
+248
+325
 Somatic maintenance rate coefficient
 11
 0.0
@@ -823,9 +928,9 @@ Somatic maintenance rate coefficient
 
 TEXTBOX
 95
-356
+354
 245
-384
+382
 Maturity maintenance rate coefficient
 11
 0.0
@@ -833,9 +938,9 @@ Maturity maintenance rate coefficient
 
 TEXTBOX
 94
-420
+419
 244
-438
+437
 Scaled maturity at birth
 11
 0.0
@@ -852,9 +957,9 @@ Scaled maturity at puberty
 1
 
 TEXTBOX
-96
+97
 539
-246
+247
 557
 Energy conductance
 11
@@ -862,9 +967,9 @@ Energy conductance
 1
 
 TEXTBOX
-95
+96
 602
-245
+246
 620
 Energy investment ratio
 11
@@ -872,110 +977,110 @@ Energy investment ratio
 1
 
 TEXTBOX
-95
-689
-245
-707
+96
+697
+246
+715
 Hazard rate
 11
 0.0
 1
 
 TEXTBOX
-97
-745
-247
-763
+100
+755
+250
+773
 Gompertz stress coefficient
 11
 0.0
 1
 
 TEXTBOX
-384
-169
-550
-211
-Maximum specific ingestion rate (algae cells/mm^2/day)
+359
+173
+525
+215
+Maximum specific ingestion rate (nr/mm^2/day)
 11
 0.0
 1
 
 TEXTBOX
-385
-228
-535
-256
-Half-saturation coefficent (algae cells)
+360
+232
+510
+258
+Half-saturation coefficent (nr)
 11
 0.0
 1
 
 TEXTBOX
-279
-431
-429
-449
-Resource variables
+1163
+361
+1313
+379
+Chemostat growth
 11
 0.0
 1
 
 TEXTBOX
-437
-479
-587
-497
+1320
+410
+1470
+428
 Resource dilution rate
 11
 0.0
 1
 
 TEXTBOX
-436
-529
-586
-547
+1319
+460
+1469
+478
 Maximum resource density
 11
 0.0
 1
 
 TEXTBOX
-402
-324
-552
-352
+365
+335
+515
+363
 Juvenile resource dependent mortality rate
 11
 0.0
 1
 
 TEXTBOX
-399
-379
-549
-407
+365
+390
+515
+418
 Days between reproductive molts
 11
 0.0
 1
 
 TEXTBOX
-281
-285
-431
-303
+255
+290
+405
+308
 Daphnia specifc parameters
 11
 0.0
 1
 
 PLOT
-576
-26
-1193
-176
+534
+10
+1151
+160
 Population biomass
 Day
 Biomass
@@ -990,10 +1095,10 @@ PENS
 "Biomass" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\nplot sum [L ^ 3] of turtles with [juvenile = 1]]"
 
 PLOT
-576
-326
-1193
-487
+534
+310
+1151
+471
 Mean length of individuals in population
 Day
 Length (mm)
@@ -1008,20 +1113,20 @@ PENS
 "default" 1.0 0 -16777216 true "" "if ticks mod timestep = 0 [\nif count turtles with [juvenile = 1] > 0\n[plot mean [max-L] of turtles with [juvenile = 1]]]"
 
 TEXTBOX
-421
-687
-604
-771
-stess levels corresponding with various reductions in reproduction in a 21 day daphnia reproduction test for each PMoA are given in Table 2 of the ODD
+775
+665
+1095
+790
+Daphnia effects on reproduction (21 day tests)\n\nEffect level    Feeding    Maintenance    Growth     Embryonic\n      25%          0.09              0.22             0.36            0.29\n      50%          0.23              0.50             0.95            0.69\n      75%          0.48              0.92             2.30            1.39\n      90%          0.78              1.28             4.65            2.30\n      95%          0.97              1.44             6.80            3.00
 11
 0.0
 1
 
 PLOT
-576
-487
-1194
-637
+534
+471
+1152
+621
 Resource density (fraction of half-saturation coefficient)
 Day
 R / H
@@ -1036,31 +1141,385 @@ PENS
 "default" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\nplot mean [R] of patches / H_int]"
 
 TEXTBOX
-278
-613
-428
-631
+603
+628
+753
+646
 Stress parameters
 11
 0.0
 1
 
 TEXTBOX
-724
-656
-874
-674
-Stress begins on day 150
+610
+790
+760
+808
+Stress begins on this day
 11
 0.0
 1
 
 TEXTBOX
-1217
-223
-1367
-265
+1162
+7
+1312
+49
 Population variables measured and averaged over days 300-600
+11
+0.0
+1
+
+SLIDER
+15
+85
+220
+118
+initial_nr_embryos
+initial_nr_embryos
+1
+300
+150.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+600
+755
+745
+788
+start_stress_day
+start_stress_day
+0
+500
+150.0
+5
+1
+NIL
+HORIZONTAL
+
+MONITOR
+250
+25
+307
+70
+Day
+floor(day)
+17
+1
+11
+
+CHOOSER
+315
+25
+480
+70
+species
+species
+"Daphnia magna" "Daphnia pulex" "Pomatoschistus minutus" "Danio rerio"
+0
+
+INPUTBOX
+255
+850
+375
+910
+shape_factor
+0.264
+1
+0
+Number
+
+INPUTBOX
+255
+610
+375
+670
+p_M
+1453.0
+1
+0
+Number
+
+INPUTBOX
+255
+670
+375
+730
+E_G
+4400.0
+1
+0
+Number
+
+INPUTBOX
+255
+730
+375
+790
+E_H^b
+0.01379
+1
+0
+Number
+
+INPUTBOX
+255
+790
+375
+850
+E_H^p
+0.3211
+1
+0
+Number
+
+INPUTBOX
+255
+490
+375
+550
+p_Am
+315.611
+1
+0
+Number
+
+CHOOSER
+1160
+245
+1375
+290
+prey-dynamics
+prey-dynamics
+"constant" "chemostat" "logistic"
+1
+
+TEXTBOX
+1160
+495
+1310
+513
+Logistic growth
+11
+0.0
+1
+
+INPUTBOX
+255
+550
+375
+610
+F_m
+6.5
+1
+0
+Number
+
+INPUTBOX
+1160
+515
+1315
+575
+rX
+10.0
+1
+0
+Number
+
+INPUTBOX
+1160
+575
+1315
+635
+KX
+250.0
+1
+0
+Number
+
+INPUTBOX
+1160
+290
+1375
+350
+volume
+194300.0
+1
+0
+Number
+
+SLIDER
+250
+75
+480
+108
+simulation_days
+simulation_days
+100
+5000
+600.0
+100
+1
+NIL
+HORIZONTAL
+
+SWITCH
+255
+455
+375
+488
+add_my_pet?
+add_my_pet?
+1
+1
+-1000
+
+BUTTON
+10
+795
+230
+828
+D. magna (Martin et al EcolApplications)
+set add_my_pet? FALSE\nset kap_int 0.678\nset kap_R_int 0.95\nset k_M_rate_int 0.3314\nset k_J_rate_int 0.1921\nset U_H^b_int 0.1108\nset U_H^p_int 2.547\nset v_rate_int 18.1\nset g_int 10\nset h_a 3.04E-6\nset sG 0.019\nset J_XAm_rate_int 380000\nset H_int 1585\nset juv-mort 0.09\nset t-molt 2.8\nset timestep 50
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+385
+510
+535
+536
+Surface area-specific assimilation flux
+11
+0.0
+1
+
+TEXTBOX
+385
+565
+535
+591
+Max surface area-specific search rate
+11
+0.0
+1
+
+TEXTBOX
+385
+625
+535
+651
+Volume-specific somatic maintenance
+11
+0.0
+1
+
+TEXTBOX
+385
+685
+535
+711
+Volume-specific cost for structure
+11
+0.0
+1
+
+TEXTBOX
+385
+755
+535
+773
+Maturity at birth
+11
+0.0
+1
+
+TEXTBOX
+385
+810
+535
+828
+Maturity at puberty
+11
+0.0
+1
+
+SLIDER
+15
+15
+220
+48
+timestep
+timestep
+0
+500
+50.0
+5
+1
+/day
+HORIZONTAL
+
+TEXTBOX
+1320
+605
+1470
+623
+Carrying capacity
+11
+0.0
+1
+
+TEXTBOX
+1320
+545
+1470
+563
+Growth rate
+11
+0.0
+1
+
+SLIDER
+1160
+665
+1315
+698
+f_scaled
+f_scaled
+0
+1
+0.95
+0.05
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+1165
+645
+1315
+663
+Constant growth
+11
+0.0
+1
+
+TEXTBOX
+1320
+675
+1470
+693
+Scaled functional response
 11
 0.0
 1
@@ -12168,5 +12627,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
