@@ -101,13 +101,13 @@ to setup
   set repro-stress 1
   set crit-mass 0.4 ; if mass (L^3) falls below crit-mass of previous maximum max (max-L^3) then there is high mort probability in death? submodel
   if prey-dynamics = "chemostat" [
-  if Rmax = 3170 [set volume 2100000 * .0145 / rho]
+  if Rmax = 3170 [set  2100000 * .0145 / rho]
   if Rmax = 7925 [set volume 670000 * .0145 / rho]
   if Rmax = 15850 [set volume 320000 * .0145 / rho]
   if Rmax = 31700 [set volume 160000 * .0145 / rho]
   ]
   calc-embryo-reserve-investment
-  crt initial_nr_embryos ;number of initial embryos to start simulations with
+  crt number_individuals ;number of initial embryos to start simulations with
   ask  turtles  [
     newborn-initialization  ; first their individual variability in the parameter is set     ; then the initial energy is calculated for each
   ]
@@ -529,10 +529,10 @@ to choose-species
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-1410
-10
-1583
-184
+1370
+45
+1543
+219
 -1
 -1
 165.0
@@ -695,10 +695,10 @@ U_H^p_int
 Number
 
 INPUTBOX
-255
-220
-348
-282
+10
+880
+103
+942
 H_int
 1585.0
 1
@@ -706,10 +706,10 @@ H_int
 Number
 
 INPUTBOX
-255
-160
-348
-220
+10
+820
+103
+880
 J_XAm_rate_int
 380000.0
 1
@@ -738,17 +738,6 @@ sG
 0
 Number
 
-INPUTBOX
-10
-835
-90
-895
-cv
-0.05
-1
-0
-Number
-
 TEXTBOX
 15
 140
@@ -760,10 +749,10 @@ DEB-IBM parameters\n
 1
 
 TEXTBOX
-255
-142
-405
+10
+802
 160
+820
 Feeding parameters
 11
 0.0
@@ -775,16 +764,6 @@ TEXTBOX
 165
 668
 Ageing parameters
-11
-0.0
-1
-
-TEXTBOX
-99
-853
-249
-888
-Coefficient of variation of parameter values
 11
 0.0
 1
@@ -812,35 +791,6 @@ juv-mort
 Number
 
 INPUTBOX
-1160
-380
-1315
-440
-rho
-0.05
-1
-0
-Number
-
-PLOT
-535
-160
-1150
-310
-Population abundance
-Day
-Abundance
-0.0
-600.0
-0.0
-0.0
-true
-false
-"" ""
-PENS
-"total" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\n  if any? turtles with [juvenile = 1]\n   [plot count turtles with [juvenile = 1]]]"
-
-INPUTBOX
 600
 695
 745
@@ -860,60 +810,6 @@ DEBMoA
 DEBMoA
 "maintenance costs" "growth costs" "feeding ability" "cost per egg" "embryonic hazard"
 2
-
-MONITOR
-1160
-55
-1370
-100
-Mean population abundance
-mean-abundance-list
-2
-1
-11
-
-MONITOR
-1160
-103
-1371
-148
-Mean population biomass (cubic mm)
-mean-biomass-list
-2
-1
-11
-
-MONITOR
-1160
-150
-1372
-195
-Mean length of individuals (mm)
-mean-length-list
-2
-1
-11
-
-MONITOR
-1160
-194
-1374
-239
-Mean resource density (fraction of H)
-mean-food-list / H_int
-2
-1
-11
-
-CHOOSER
-1160
-440
-1315
-485
-Rmax
-Rmax
-3170 7925 15850 31700
-1
 
 TEXTBOX
 96
@@ -1016,51 +912,21 @@ Gompertz stress coefficient
 1
 
 TEXTBOX
-359
-173
-525
-215
+110
+840
+250
+870
 Maximum specific ingestion rate (nr/mm^2/day)
 11
 0.0
 1
 
 TEXTBOX
-360
-232
-510
-258
+110
+890
+210
+935
 Half-saturation coefficent (nr)
-11
-0.0
-1
-
-TEXTBOX
-1163
-361
-1313
-379
-Chemostat growth
-11
-0.0
-1
-
-TEXTBOX
-1320
-410
-1470
-428
-Resource dilution rate
-11
-0.0
-1
-
-TEXTBOX
-1319
-460
-1469
-478
-Maximum resource density
 11
 0.0
 1
@@ -1095,69 +961,15 @@ Daphnia specifc parameters
 0.0
 1
 
-PLOT
-534
-10
-1151
-160
-Population biomass
-Day
-Biomass
-0.0
-600.0
-0.0
-0.0
-true
-false
-"" ""
-PENS
-"Biomass" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\nplot sum [L ^ 3] of turtles with [juvenile = 1]]"
-
-PLOT
-534
-310
-1151
-471
-Mean length of individuals in population
-Day
-Length (mm)
-0.0
-600.0
-0.0
-0.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "if ticks mod timestep = 0 [\nif count turtles with [juvenile = 1] > 0\n[plot mean [max-L] of turtles with [juvenile = 1]]]"
-
 TEXTBOX
-775
-665
-1095
-790
+265
+145
+570
+270
 Daphnia effects on reproduction (21 day tests)\n\nEffect level    Feeding    Maintenance    Growth     Embryonic\n      25%          0.09              0.22             0.36            0.29\n      50%          0.23              0.50             0.95            0.69\n      75%          0.48              0.92             2.30            1.39\n      90%          0.78              1.28             4.65            2.30\n      95%          0.97              1.44             6.80            3.00
 11
 0.0
 1
-
-PLOT
-534
-471
-1152
-621
-Resource density (fraction of half-saturation coefficient)
-Day
-R / H
-0.0
-600.0
-0.0
-0.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "if ticks mod timestep = 0[\nplot mean [R] of patches / H_int]"
 
 TEXTBOX
 603
@@ -1179,26 +991,16 @@ Stress begins on this day
 0.0
 1
 
-TEXTBOX
-1162
-7
-1312
-49
-Population variables measured and averaged over days 300-600
-11
-0.0
-1
-
 SLIDER
 15
 85
 220
 118
-initial_nr_embryos
-initial_nr_embryos
+number_individuals
+number_individuals
 1
-300
-150.0
+4
+1.0
 1
 1
 NIL
@@ -1306,26 +1108,6 @@ p_Am
 0
 Number
 
-CHOOSER
-1160
-245
-1375
-290
-prey-dynamics
-prey-dynamics
-"constant" "chemostat" "logistic"
-1
-
-TEXTBOX
-1160
-495
-1310
-513
-Logistic growth
-11
-0.0
-1
-
 INPUTBOX
 255
 550
@@ -1333,39 +1115,6 @@ INPUTBOX
 610
 F_m
 6.5
-1
-0
-Number
-
-INPUTBOX
-1160
-515
-1315
-575
-rX
-10.0
-1
-0
-Number
-
-INPUTBOX
-1160
-575
-1315
-635
-KX
-250.0
-1
-0
-Number
-
-INPUTBOX
-1160
-290
-1375
-350
-volume
-194300.0
 1
 0
 Number
@@ -1471,31 +1220,11 @@ timestep
 /day
 HORIZONTAL
 
-TEXTBOX
-1320
-605
-1470
-623
-Carrying capacity
-11
-0.0
-1
-
-TEXTBOX
-1320
-545
-1470
-563
-Growth rate
-11
-0.0
-1
-
 SLIDER
-1160
-665
-1315
-698
+10
+945
+102
+978
 f_scaled
 f_scaled
 0
@@ -1507,31 +1236,21 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-1165
-645
-1315
-663
-Constant growth
-11
-0.0
-1
-
-TEXTBOX
-1320
-675
-1470
-693
+115
+940
+205
+970
 Scaled functional response
 11
 0.0
 1
 
 PLOT
-1530
-365
-1730
-515
-Individual growth
+1025
+40
+1325
+225
+Individual growth - Conditions A
 Day
 L (cm)
 0.0
