@@ -40,9 +40,9 @@ globals[
     r_max   K_r   K_ml  Kap     Kan   K_s    K_d    Khn   Khp                                                 ;; Food (States   Parameters)
     G2Kcal  h_n   h_p   Ksn     Knl                                                                           ;; Food (States   Parameters)
     Kappa   v     PAm   PM      Km    Eg     alpha  lf     sdi    PM.t   v.t   PAm.t                          ;; energy
-    L.p     lp    Rm    P.t     H.max H.0.5  R.t    SR.mu  SR.sd  SR.a   SR.b   s.dmax T.t    ;; Puberty and Reproduction
+    L.p     lp    Rm    P.t     H.max H.0.5  R.t    SR.mu  SR.sd  SR.a   SR.b   s.dmax T.t                    ;; Puberty and Reproduction
     M.a     M.b   M.c   M.d     M.p   M.e    M.g                                                              ;; Survival
-    Aff     Zota  lb    L.b     Linf  Em     g      Fl.m   aW    bW    a.h   b.h                         ;; Growth
+    Aff     Zota  lb    L.b     Linf  Em     g      Fl.m   aW    bW    a.h   b.h                              ;; Growth
 
   ;------------------------------------ model outputs ------------------------------------
    N.tot    N.tot.adult  N.Fond                  ; Abundance
@@ -1052,7 +1052,7 @@ true
 true
 "" ""
 PENS
-"Total" 1.0 0 -10141563 true "" "plot ( ( sum [W] of Females + sum [W] of Males + sum [W] of Juveniles  ) / ( Wv * 1000 ) )"
+"Total_1" 1.0 0 -10141563 true "" "plot ( ( sum [W] of Females + sum [W] of Males + sum [W] of Juveniles  ) / ( Wv * 1000 ) )"
 "Adults" 1.0 0 -14730904 true "" "plot ( ( sum [W] of Females + sum [W] of Males ) / (Wv * 1000) )"
 "Juveniles" 1.0 0 -14439633 true "" "plot ( ( sum [W] of Juveniles ) / (Wv * 1000) )"
 "Females" 1.0 0 -10402772 true "" "plot female.D"
@@ -1613,7 +1613,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.2
+NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
